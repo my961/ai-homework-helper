@@ -6,27 +6,10 @@
     <title>AI Student Assistant</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
-    <!-- PWA Settings -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#0f172a">
-    
-    <link rel="manifest" href="data:application/manifest+json;charset=utf-8,{
-        %22name%22: %22AI Student Assistant%22,
-        %22short_name%22: %22AI Helper%22,
-        %22start_url%22: %22./%22,
-        %22display%22: %22standalone%22,
-        %22background_color%22: %22%230f172a%22,
-        %22theme_color%22: %22%236366f1%22,
-        %22icons%22: [
-            {
-                %22src%22: %22https://cdn-icons-png.flaticon.com/512/4712/4712109.png%22,
-                %22sizes%22: %22512x512%22,
-                %22type%22: %22image/png%22
-            }
-        ]
-    }">
 
     <style>
         :root {
@@ -228,9 +211,6 @@
 </div>
 
 <script>
-    // የ Cloudflare Worker URLህ ተተክቷል
-    const WORKER_URL = "https://wispy-mouse-ccc7.kiburzeleke.workers.dev/"; 
-
     let currentMode = 'essay';
 
     function setMode(mode, btn) {
@@ -255,22 +235,27 @@
 
         output.innerHTML = `<span style="color: #6366f1;">⏳ AI is processing... Please wait...</span>`;
 
-        let sys = "You are a helpful student assistant. Always respond in English.";
-        if (currentMode === 'essay') sys = "Write a clear, well-structured essay based on the topic in English.";
-        else if (currentMode === 'grammar') sys = "Correct grammar, spelling, and style errors in the input text. Provide the response in English.";
-        else sys = "Solve the problem step-by-step with clear explanations in English.";
+        let sysPrompt = "You are a student assistant.";
+        if (currentMode === 'essay') sysPrompt = "Write a clear, structured essay on this topic in English:";
+        else if (currentMode === 'grammar') sysPrompt = "Correct spelling and grammar in this text in English:";
+        else sysPrompt = "Solve this problem step-by-step in English:";
+
+        const query = encodeURIComponent(`${sysPrompt} ${text}`);
+        
+        // ቀጥታ በ GET Request የሚሰራ ነፃ የ AI ጥሪ (Cloudflare ወይም API Key አይፈልግም)
+        const apiUrl = `https://text.pollinations.ai/${query}?model=openai&no-cache=true`;
 
         try {
-            const res = await fetch(WORKER_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ prompt: text, system: sys })
-            });
+            const response = await fetch(apiUrl);
+            const data = await response.text();
 
-            const data = await res.text();
-            output.innerText = data;
-        } catch (e) {
-            output.innerText = "❌ Connection Error: " + e.message;
+            if (response.ok && data) {
+                output.innerText = data;
+            } else {
+                output.innerText = "❌ Something went wrong. Please try clicking Generate Answer again.";
+            }
+        } catch (error) {
+            output.innerText = "❌ Network error. Please check your internet connection.";
         }
     }
 </script>
