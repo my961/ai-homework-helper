@@ -6,7 +6,7 @@
     <title>AI Student Assistant</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
-    <!-- PWA Settings (Chrome አርማን ለማጥፋት እና እንደ ትክክለኛ አፕ ለመክፈት) -->
+    <!-- PWA Settings -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -176,6 +176,8 @@
             border-radius: 12px;
             padding: 14px;
             min-height: 100px;
+            max-height: 250px;
+            overflow-y: auto;
             font-size: 0.88rem;
             line-height: 1.5;
             color: #e2e8f0;
@@ -226,7 +228,6 @@
 </div>
 
 <script>
-    // Embedded Groq API Key
     const GROQ_API_KEY = "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";
     let currentMode = 'essay';
 
@@ -246,17 +247,17 @@
         const output = document.getElementById('outputArea');
 
         if (!text) {
-            alert("እባክዎን ጥያቄ ወይም ርዕስ ያስገቡ!");
+            alert("Please enter a question or topic!");
             return;
         }
 
-        output.innerHTML = `<span style="color: #6366f1;">⏳ AI እየጻፈ ነው... እባክዎን ትንሽ ይጠብቁ...</span>`;
+        output.innerHTML = `<span style="color: #6366f1;">⏳ AI is processing... Please wait...</span>`;
 
         try {
-            let systemPrompt = "You are a helpful student assistant.";
-            if (currentMode === 'essay') systemPrompt = "Write a clear, well-structured essay based on the topic.";
-            else if (currentMode === 'grammar') systemPrompt = "Correct grammar, spelling, and style errors in the input text.";
-            else systemPrompt = "Solve the problem step-by-step with clear explanations.";
+            let systemPrompt = "You are a helpful student assistant. Always respond in English.";
+            if (currentMode === 'essay') systemPrompt = "Write a clear, well-structured essay based on the topic in English.";
+            else if (currentMode === 'grammar') systemPrompt = "Correct grammar, spelling, and style errors in the input text. Provide the response in English.";
+            else systemPrompt = "Solve the problem step-by-step with clear explanations in English.";
 
             const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                 method: "POST",
@@ -274,17 +275,18 @@
             });
 
             const data = await res.json();
-            if (data.choices && data.choices[0]) {
+            
+            if (res.ok && data.choices && data.choices[0]) {
                 output.innerText = data.choices[0].message.content;
             } else {
-                output.innerText = "❌ ስህተት፡ ምላሽ ማግኘት አልተቻለም።";
+                const errorMsg = data.error ? data.error.message : JSON.stringify(data);
+                output.innerText = `❌ API Error: ${errorMsg}`;
             }
         } catch (err) {
-            output.innerText = "❌ ከ AI ጋር ማገናኘት አልተቻለም። ኢንተርኔትዎን ያረጋግጡ።";
+            output.innerText = `❌ Connection Error: ${err.message}`;
         }
     }
 </script>
 
 </body>
 </html>
-            
