@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Essay & Homework Assistant</title>
+    <style>
+        :root {
+            --primary-color: #4F46E5;
+            --bg-color: #F3F4F6;
+            --card-bg: #FFFFFF;
+            --text-color: #1F2937;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            width: 100%;
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        header h1 { margin: 0; font-size: 1.8rem; }
+        header p { margin: 5px 0 0; font-size: 0.9rem; opacity: 0.9; }
+
+        .container {
+            width: 90%;
+            max-width: 700px;
+            margin: 20px auto;
+        }
+
+        .ad-banner {
+            background-color: #E5E7EB;
+            border: 2px dashed #9CA3AF;
+            text-align: center;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: #6B7280;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        .tool-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .tool-btn {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid var(--primary-color);
+            background: transparent;
+            color: var(--primary-color);
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .tool-btn.active, .tool-btn:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 12px;
+            border: 1px solid #D1D5DB;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1rem;
+            resize: vertical;
+        }
+
+        button.generate-btn {
+            width: 100%;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        button.generate-btn:hover {
+            opacity: 0.9;
+        }
+
+        .result-box {
+            margin-top: 20px;
+            background: #F9FAFB;
+            border: 1px solid #E5E7EB;
+            padding: 15px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            min-height: 80px;
+        }
+
+        footer {
+            margin-top: auto;
+            padding: 15px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #6B7280;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>AI Student Assistant 🎓</h1>
+        <p>Your Free AI Homework, Essay & Grammar Helper</p>
+    </header>
+
+    <div class="container">
+        <!-- Top Ad Placement Space -->
+        <div class="ad-banner">
+            [ Advertisement Space - Banner Ad ]
+        </div>
+
+        <div class="card">
+            <div class="tool-selector">
+                <button class="tool-btn active" onclick="selectTool('essay')">Essay Writer</button>
+                <button class="tool-btn" onclick="selectTool('grammar')">Grammar Check</button>
+                <button class="tool-btn" onclick="selectTool('homework')">Solver</button>
+            </div>
+
+            <textarea id="userInput" placeholder="Enter your essay topic or prompt here..."></textarea>
+            
+            <button class="generate-btn" onclick="processAI()">Generate Answer ✨</button>
+
+            <div class="result-box" id="output">
+                <em>Your result will appear here...</em>
+            </div>
+        </div>
+
+        <!-- Bottom Ad Placement Space -->
+        <div class="ad-banner">
+            [ Advertisement Space - Native/Banner Ad ]
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2026 AI Student Assistant. Built for Students Worldwide.
+    </footer>
+
+    <script>
+        let currentTool = 'essay';
+
+        function selectTool(tool) {
+            currentTool = tool;
+            document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            const input = document.getElementById('userInput');
+            if(tool === 'essay') {
+                input.placeholder = "Enter your essay topic or prompt here...";
+            } else if(tool === 'grammar') {
+                input.placeholder = "Paste your text here to check grammar & spelling...";
+            } else {
+                input.placeholder = "Paste your math/science question or assignment here...";
+            }
+        }
+
+        async function processAI() {
+            const input = document.getElementById('userInput').value;
+            const output = document.getElementById('output');
+
+            if (!input.trim()) {
+                alert("Please enter some text first!");
+                return;
+            }
+
+            output.innerHTML = "<em>AI is thinking... Please wait... ⏳</em>";
+
+            // Demo AI Logic (You can connect Groq/OpenAI API key here)
+            setTimeout(() => {
+                if(currentTool === 'essay') {
+                    output.innerText = `[Essay Outline & Draft]\n\nTitle: ${input}\n\nIntroduction:\n${input} is a critical topic in modern education. Understanding its fundamentals allows students to explore broader horizons...\n\nMain Body:\nFirstly, it impacts how we process information...`;
+                } else if(currentTool === 'grammar') {
+                    output.innerText = `[Grammar Checked Version]:\n\n"${input}"\n\nStatus: Checked! No critical errors found. Fluent tone applied.`;
+                } else {
+                    output.innerText = `[Step-by-Step Solution]:\n\nQuestion: ${input}\n\nSolution:\n1. Analyze the given problem parameters.\n2. Apply core logic/formula.\n3. Final Answer: Verified successfully!`;
+                }
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
