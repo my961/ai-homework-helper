@@ -6,6 +6,7 @@
     <title>AI Student Assistant</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
+    <!-- PWA Settings -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -227,6 +228,9 @@
 </div>
 
 <script>
+    // የ Cloudflare Worker URLህ ተተክቷል
+    const WORKER_URL = "https://wispy-mouse-ccc7.kiburzeleke.workers.dev/"; 
+
     let currentMode = 'essay';
 
     function setMode(mode, btn) {
@@ -251,49 +255,23 @@
 
         output.innerHTML = `<span style="color: #6366f1;">⏳ AI is processing... Please wait...</span>`;
 
-        let systemPrompt = "You are a helpful student assistant. Always respond in English.";
-        if (currentMode === 'essay') systemPrompt = "Write a clear, well-structured essay based on the topic in English.";
-        else if (currentMode === 'grammar') systemPrompt = "Correct grammar, spelling, and style errors in the input text. Provide the response in English.";
-        else systemPrompt = "Solve the problem step-by-step with clear explanations in English.";
+        let sys = "You are a helpful student assistant. Always respond in English.";
+        if (currentMode === 'essay') sys = "Write a clear, well-structured essay based on the topic in English.";
+        else if (currentMode === 'grammar') sys = "Correct grammar, spelling, and style errors in the input text. Provide the response in English.";
+        else sys = "Solve the problem step-by-step with clear explanations in English.";
 
-        const fullPrompt = `${systemPrompt}\n\nTask: ${text}`;
-
-        // Primary Endpoint (Open-Access AI Reverse Proxy)
         try {
-            const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(fullPrompt)}?model=mistral&cache=false`);
-            const data = await res.text();
-
-            if (res.ok && data && !data.includes("PAYMENT_REQUIRED") && !data.includes("error")) {
-                output.innerText = data;
-                return;
-            }
-        } catch (e) {
-            console.log("Primary API failed, switching to backup...");
-        }
-
-        // Secondary Endpoint (Deepinfra Public Fallback)
-        try {
-            const res2 = await fetch("https://api.deepinfra.com/v1/openai/chat/completions", {
+            const res = await fetch(WORKER_URL, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    model: "meta-llama/Meta-Llama-3.1-8B-Instruct",
-                    messages: [
-                        { role: "system", content: systemPrompt },
-                        { role: "user", content: text }
-                    ]
-                })
+                body: JSON.stringify({ prompt: text, system: sys })
             });
-            const data2 = await res2.json();
-            if (res2.ok && data2.choices && data2.choices[0]) {
-                output.innerText = data2.choices[0].message.content;
-                return;
-            }
-        } catch (e) {
-            console.log("Secondary API failed...");
-        }
 
-        output.innerText = "❌ Network Busy. Please try clicking 'Generate Answer' again.";
+            const data = await res.text();
+            output.innerText = data;
+        } catch (e) {
+            output.innerText = "❌ Connection Error: " + e.message;
+        }
     }
 </script>
 
