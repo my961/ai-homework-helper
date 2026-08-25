@@ -6,7 +6,6 @@
     <title>AI Student Assistant</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
-    <!-- PWA Settings -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -253,24 +252,52 @@
         output.innerHTML = `<span style="color: #6366f1;">⏳ AI is processing... Please wait...</span>`;
 
         try {
-            let systemPrompt = "You are a helpful student assistant. Respond in English.";
+            let systemPrompt = "You are a helpful student assistant. Always respond in English.";
             if (currentMode === 'essay') systemPrompt = "Write a clear, well-structured essay based on the topic in English.";
             else if (currentMode === 'grammar') systemPrompt = "Correct grammar, spelling, and style errors in the input text. Provide the response in English.";
             else systemPrompt = "Solve the problem step-by-step with clear explanations in English.";
 
-            const fullPrompt = `${systemPrompt}\n\nUser Request: ${text}`;
+            // Free DDG Proxy endpoint
+            const response = await fetch("https://ddg-api.herokuapp.com/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    message: `${systemPrompt}\n\nTask: ${text}`,
+                    model: "gpt-3.5-turbo"
+                })
+            });
 
-            // የህዝብ ነፃ የ AI ዌብ ሰርቪስ (ቁልፍ አያስፈልገውም)
-            const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(fullPrompt)}`);
-            const data = await res.text();
-            
-            if (res.ok && data) {
-                output.innerText = data;
-            } else {
-                output.innerText = `❌ Error: Could not generate response.`;
+            if (!response.ok) {
+                // Fallback to secondary free client API
+                const altRes = await fetch("https://text.pollinations.ai/", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        messages: [
+                            { role: "system", content: systemPrompt },
+                            { role: "user", content: text }
+                        ],
+                        model: "openai"
+                    })
+                });
+                const altText = await altRes.text();
+                output.innerText = altText || "❌ Response error.";
+                return;
             }
+
+            const data = await response.json();
+            output.innerText = data.reply || data.response || JSON.stringify(data);
+
         } catch (err) {
-            output.innerText = `❌ Connection Error: ${err.message}`;
+            // Backup connection attempt
+            try {
+                let systemPrompt = currentMode === 'essay' ? "Write an essay:" : currentMode === 'grammar' ? "Fix grammar:" : "Solve:";
+                const fallbackRes = await fetch(`https://text.pollinations.ai/${encodeURIComponent(systemPrompt + ' ' + text)}?model=openai`);
+                const fallbackData = await fallbackRes.text();
+                output.innerText = fallbackData;
+            } catch (e) {
+                output.innerText = `❌ Connection Error: Please check your network and try again.`;
+            }
         }
     }
 </script>
