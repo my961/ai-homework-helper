@@ -3,213 +3,264 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Essay & Homework Assistant</title>
+    <title>AI Student Assistant</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #4F46E5;
-            --bg-color: #F3F4F6;
-            --card-bg: #FFFFFF;
-            --text-color: #1F2937;
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f8fafc;
+            --text-dim: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 0;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 12px;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 480px;
             display: flex;
             flex-direction: column;
+            gap: 16px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 16px 0;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            color: #fff;
+            display: flex;
             align-items: center;
-            min-height: 100vh;
+            justify-content: center;
+            gap: 8px;
         }
 
-        header {
-            background-color: var(--primary-color);
-            color: white;
-            width: 100%;
-            padding: 20px 0;
-            text-align: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        header h1 { margin: 0; font-size: 1.8rem; }
-        header p { margin: 5px 0 0; font-size: 0.9rem; opacity: 0.9; }
-
-        .container {
-            width: 90%;
-            max-width: 700px;
-            margin: 20px auto;
-        }
-
-        .ad-banner {
-            background-color: #E5E7EB;
-            border: 2px dashed #9CA3AF;
-            text-align: center;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 8px;
+        .header p {
+            color: var(--text-dim);
             font-size: 0.85rem;
-            color: #6B7280;
+            margin-top: 4px;
+        }
+
+        .ad-placeholder {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px dashed rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 10px;
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 0.75rem;
         }
 
         .card {
             background: var(--card-bg);
-            padding: 20px;
+            border-radius: 16px;
+            padding: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        .tabs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 4px;
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
 
-        .tool-selector {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .tool-btn {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid var(--primary-color);
+        .tab-btn {
             background: transparent;
-            color: var(--primary-color);
-            border-radius: 6px;
+            border: none;
+            color: var(--text-dim);
+            padding: 10px 0;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
             cursor: pointer;
-            font-weight: bold;
-            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s;
         }
 
-        .tool-btn.active, .tool-btn:hover {
-            background: var(--primary-color);
+        .tab-btn.active {
+            background: var(--primary);
             color: white;
         }
 
         textarea {
             width: 100%;
             height: 120px;
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
             padding: 12px;
-            border: 1px solid #D1D5DB;
-            border-radius: 8px;
-            box-sizing: border-box;
-            font-size: 1rem;
-            resize: vertical;
+            color: #fff;
+            font-size: 0.9rem;
+            resize: none;
+            outline: none;
         }
 
-        button.generate-btn {
+        textarea:focus {
+            border-color: var(--primary);
+        }
+
+        .action-btn {
             width: 100%;
-            background-color: var(--primary-color);
+            background: var(--primary);
             color: white;
             border: none;
-            padding: 12px;
-            font-size: 1rem;
-            border-radius: 8px;
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 0.95rem;
+            font-weight: 600;
             cursor: pointer;
-            margin-top: 15px;
-            font-weight: bold;
+            margin-top: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background 0.2s;
         }
 
-        button.generate-btn:hover {
-            opacity: 0.9;
+        .action-btn:active {
+            background: var(--primary-dark);
         }
 
-        .result-box {
-            margin-top: 20px;
-            background: #F9FAFB;
-            border: 1px solid #E5E7EB;
-            padding: 15px;
-            border-radius: 8px;
+        .output-card {
+            margin-top: 16px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 14px;
+            min-height: 100px;
+            font-size: 0.88rem;
+            line-height: 1.5;
+            color: #e2e8f0;
             white-space: pre-wrap;
-            min-height: 80px;
-        }
-
-        footer {
-            margin-top: auto;
-            padding: 15px;
-            text-align: center;
-            font-size: 0.8rem;
-            color: #6B7280;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>AI Student Assistant 🎓</h1>
-        <p>Your Free AI Homework, Essay & Grammar Helper</p>
-    </header>
+<div class="app-container">
+    <div class="header">
+        <h1><i class="fa-solid fa-brain" style="color: #6366f1;"></i> AI Student Helper</h1>
+        <p>Smart Assistant for Essays & Homework</p>
+    </div>
 
-    <div class="container">
-        <!-- Top Ad Placement Space -->
-        <div class="ad-banner">
-            [ Advertisement Space - Banner Ad ]
+    <div class="ad-placeholder">
+        📢 Advertisement Space (AdMob Banner)
+    </div>
+
+    <div class="card">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="setMode('essay', this)">
+                <i class="fa-solid fa-pen-nib"></i> Essay
+            </button>
+            <button class="tab-btn" onclick="setMode('grammar', this)">
+                <i class="fa-solid fa-spell-check"></i> Grammar
+            </button>
+            <button class="tab-btn" onclick="setMode('solver', this)">
+                <i class="fa-solid fa-calculator"></i> Solver
+            </button>
         </div>
 
-        <div class="card">
-            <div class="tool-selector">
-                <button class="tool-btn active" onclick="selectTool('essay')">Essay Writer</button>
-                <button class="tool-btn" onclick="selectTool('grammar')">Grammar Check</button>
-                <button class="tool-btn" onclick="selectTool('homework')">Solver</button>
-            </div>
+        <textarea id="promptInput" placeholder="Enter your essay topic or prompt here..."></textarea>
 
-            <textarea id="userInput" placeholder="Enter your essay topic or prompt here..."></textarea>
-            
-            <button class="generate-btn" onclick="processAI()">Generate Answer ✨</button>
+        <button class="action-btn" onclick="generateResult()">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Generate Answer
+        </button>
 
-            <div class="result-box" id="output">
-                <em>Your result will appear here...</em>
-            </div>
-        </div>
-
-        <!-- Bottom Ad Placement Space -->
-        <div class="ad-banner">
-            [ Advertisement Space - Native/Banner Ad ]
+        <div class="output-card" id="outputArea">
+            <span style="color: var(--text-dim);">Your AI output will appear here...</span>
         </div>
     </div>
 
-    <footer>
-        &copy; 2026 AI Student Assistant. Built for Students Worldwide.
-    </footer>
+    <div class="ad-placeholder">
+        📢 Advertisement Space (AdMob Native)
+    </div>
+</div>
 
-    <script>
-        let currentTool = 'essay';
+<script>
+    // Embedded Groq API Key
+    const GROQ_API_KEY = "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";
+    let currentMode = 'essay';
 
-        function selectTool(tool) {
-            currentTool = tool;
-            document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+    function setMode(mode, btn) {
+        currentMode = mode;
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
 
-            const input = document.getElementById('userInput');
-            if(tool === 'essay') {
-                input.placeholder = "Enter your essay topic or prompt here...";
-            } else if(tool === 'grammar') {
-                input.placeholder = "Paste your text here to check grammar & spelling...";
+        const input = document.getElementById('promptInput');
+        if (mode === 'essay') input.placeholder = "Enter your essay topic or title...";
+        else if (mode === 'grammar') input.placeholder = "Paste your text to correct grammar...";
+        else input.placeholder = "Enter your math or homework problem...";
+    }
+
+    async function generateResult() {
+        const text = document.getElementById('promptInput').value.trim();
+        const output = document.getElementById('outputArea');
+
+        if (!text) {
+            alert("እባክዎን ጥያቄ ወይም ርዕስ ያስገቡ!");
+            return;
+        }
+
+        output.innerHTML = `<span style="color: #6366f1;">⏳ AI እየጻፈ ነው... እባክዎን ትንሽ ይጠብቁ...</span>`;
+
+        try {
+            let systemPrompt = "You are a helpful student assistant.";
+            if (currentMode === 'essay') systemPrompt = "Write a clear, well-structured essay based on the topic.";
+            else if (currentMode === 'grammar') systemPrompt = "Correct grammar, spelling, and style errors in the input text.";
+            else systemPrompt = "Solve the problem step-by-step with clear explanations.";
+
+            const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${GROQ_API_KEY}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    model: "llama-3.3-70b-versatile",
+                    messages: [
+                        { role: "system", content: systemPrompt },
+                        { role: "user", content: text }
+                    ]
+                })
+            });
+
+            const data = await res.json();
+            if (data.choices && data.choices[0]) {
+                output.innerText = data.choices[0].message.content;
             } else {
-                input.placeholder = "Paste your math/science question or assignment here...";
+                output.innerText = "❌ ስህተት፡ ምላሽ ማግኘት አልተቻለም።";
             }
+        } catch (err) {
+            output.innerText = "❌ ከ AI ጋር ማገናኘት አልተቻለም። ኢንተርኔትዎን ያረጋግጡ።";
         }
+    }
+</script>
 
-        async function processAI() {
-            const input = document.getElementById('userInput').value;
-            const output = document.getElementById('output');
-
-            if (!input.trim()) {
-                alert("Please enter some text first!");
-                return;
-            }
-
-            output.innerHTML = "<em>AI is thinking... Please wait... ⏳</em>";
-
-            // Demo AI Logic (You can connect Groq/OpenAI API key here)
-            setTimeout(() => {
-                if(currentTool === 'essay') {
-                    output.innerText = `[Essay Outline & Draft]\n\nTitle: ${input}\n\nIntroduction:\n${input} is a critical topic in modern education. Understanding its fundamentals allows students to explore broader horizons...\n\nMain Body:\nFirstly, it impacts how we process information...`;
-                } else if(currentTool === 'grammar') {
-                    output.innerText = `[Grammar Checked Version]:\n\n"${input}"\n\nStatus: Checked! No critical errors found. Fluent tone applied.`;
-                } else {
-                    output.innerText = `[Step-by-Step Solution]:\n\nQuestion: ${input}\n\nSolution:\n1. Analyze the given problem parameters.\n2. Apply core logic/formula.\n3. Final Answer: Verified successfully!`;
-                }
-            }, 1500);
-        }
-    </script>
 </body>
 </html>
