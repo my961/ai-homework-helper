@@ -228,11 +228,6 @@
 </div>
 
 <script>
-    // GitHub Secret Scanner እንዳይይዘው ቁልፉ ተከፍሏል
-    const p1 = "gsk_jq0YxQ8VsKK3HUZg58wr";
-    const p2 = "WGdyb3FYVlXc09nRUoOBnC8hRbIx5EKe";
-    const GROQ_API_KEY = p1 + p2;
-
     let currentMode = 'essay';
 
     function setMode(mode, btn) {
@@ -258,33 +253,21 @@
         output.innerHTML = `<span style="color: #6366f1;">⏳ AI is processing... Please wait...</span>`;
 
         try {
-            let systemPrompt = "You are a helpful student assistant. Always respond in English.";
+            let systemPrompt = "You are a helpful student assistant. Respond in English.";
             if (currentMode === 'essay') systemPrompt = "Write a clear, well-structured essay based on the topic in English.";
             else if (currentMode === 'grammar') systemPrompt = "Correct grammar, spelling, and style errors in the input text. Provide the response in English.";
             else systemPrompt = "Solve the problem step-by-step with clear explanations in English.";
 
-            const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${GROQ_API_KEY}`,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    model: "llama-3.1-8b-instant",
-                    messages: [
-                        { role: "system", content: systemPrompt },
-                        { role: "user", content: text }
-                    ]
-                })
-            });
+            const fullPrompt = `${systemPrompt}\n\nUser Request: ${text}`;
 
-            const data = await res.json();
+            // የህዝብ ነፃ የ AI ዌብ ሰርቪስ (ቁልፍ አያስፈልገውም)
+            const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(fullPrompt)}`);
+            const data = await res.text();
             
-            if (res.ok && data.choices && data.choices[0]) {
-                output.innerText = data.choices[0].message.content;
+            if (res.ok && data) {
+                output.innerText = data;
             } else {
-                const errorMsg = data.error ? data.error.message : JSON.stringify(data);
-                output.innerText = `❌ API Error: ${errorMsg}`;
+                output.innerText = `❌ Error: Could not generate response.`;
             }
         } catch (err) {
             output.innerText = `❌ Connection Error: ${err.message}`;
