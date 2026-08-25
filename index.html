@@ -5,6 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Student Assistant</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- PWA Settings (Chrome አርማን ለማጥፋት እና እንደ ትክክለኛ አፕ ለመክፈት) -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0f172a">
+    
+    <link rel="manifest" href="data:application/manifest+json;charset=utf-8,{
+        %22name%22: %22AI Student Assistant%22,
+        %22short_name%22: %22AI Helper%22,
+        %22start_url%22: %22./%22,
+        %22display%22: %22standalone%22,
+        %22background_color%22: %22%230f172a%22,
+        %22theme_color%22: %22%236366f1%22,
+        %22icons%22: [
+            {
+                %22src%22: %22https://cdn-icons-png.flaticon.com/512/4712/4712109.png%22,
+                %22sizes%22: %22512x512%22,
+                %22type%22: %22image/png%22
+            }
+        ]
+    }">
+
     <style>
         :root {
             --primary: #6366f1;
@@ -264,3 +287,4 @@
 
 </body>
 </html>
+            
