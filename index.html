@@ -1,275 +1,133 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="am">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Student Assistant</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    
-    <!-- PWA Settings -->
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#0f172a">
-
+    <title>የተማሪዎች አፕሊኬሽን</title>
     <style>
-        :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --bg: #0f172a;
-            --card-bg: #1e293b;
-            --text: #f8fafc;
-            --text-dim: #94a3b8;
-        }
-
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
-
         body {
-            background-color: var(--bg);
-            color: var(--text);
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            align-items: center;
             min-height: 100vh;
-            padding: 12px;
+            padding: 20px;
         }
-
-        .app-container {
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             width: 100%;
-            max-width: 480px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .header {
+            max-width: 500px;
             text-align: center;
-            padding: 16px 0;
         }
-
-        .header h1 {
-            font-size: 1.5rem;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+        h2 {
+            color: #1a73e8;
+            margin-bottom: 15px;
         }
-
-        .header p {
-            color: var(--text-dim);
-            font-size: 0.85rem;
-            margin-top: 4px;
-        }
-
-        .ad-placeholder {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px dashed rgba(255, 255, 255, 0.15);
-            border-radius: 12px;
-            padding: 10px;
-            text-align: center;
-            color: var(--text-dim);
-            font-size: 0.75rem;
-        }
-
-        .card {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-        }
-
-        .tabs {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            background: rgba(0, 0, 0, 0.2);
-            padding: 4px;
-            border-radius: 12px;
-            margin-bottom: 16px;
-        }
-
-        .tab-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-dim);
-            padding: 10px 0;
+        video {
+            width: 100%;
+            height: 250px;
+            background-color: #000;
             border-radius: 8px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            cursor: pointer;
+            margin-bottom: 15px;
+            object-fit: cover;
+        }
+        .btn-group {
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            transition: all 0.2s;
-        }
-
-        .tab-btn.active {
-            background: var(--primary);
-            color: white;
-        }
-
-        textarea {
-            width: 100%;
-            height: 120px;
-            background: rgba(0, 0, 0, 0.25);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 12px;
-            color: #fff;
-            font-size: 0.9rem;
-            resize: none;
-            outline: none;
-        }
-
-        textarea:focus {
-            border-color: var(--primary);
-        }
-
-        .action-btn {
-            width: 100%;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            padding: 14px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 14px;
-            display: flex;
-            align-items: center;
+            gap: 10px;
             justify-content: center;
-            gap: 8px;
-            transition: background 0.2s;
+            margin-bottom: 15px;
         }
-
-        .action-btn:active {
-            background: var(--primary-dark);
+        button {
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+            background-color: #1a73e8;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
         }
-
-        .output-card {
-            margin-top: 16px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 12px;
-            padding: 14px;
-            min-height: 100px;
-            max-height: 250px;
-            overflow-y: auto;
-            font-size: 0.88rem;
-            line-height: 1.5;
-            color: #e2e8f0;
-            white-space: pre-wrap;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+        button:disabled {
+            background-color: #ccc;
+        }
+        #status {
+            font-size: 14px;
+            color: #555;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
 
-<div class="app-container">
-    <div class="header">
-        <h1><i class="fa-solid fa-brain" style="color: #6366f1;"></i> AI Student Helper</h1>
-        <p>Smart Assistant for Essays & Homework</p>
-    </div>
+    <div class="container">
+        <h2>ካሜራ እና ድምፅ መሞከሪያ</h2>
+        
+        <!-- ካሜራው የሚታይበት ቦታ -->
+        <video id="webcam" autoplay playsinline muted></video>
 
-    <div class="ad-placeholder">
-        📢 Advertisement Space (AdMob Banner)
-    </div>
-
-    <div class="card">
-        <div class="tabs">
-            <button class="tab-btn active" onclick="setMode('essay', this)">
-                <i class="fa-solid fa-pen-nib"></i> Essay
-            </button>
-            <button class="tab-btn" onclick="setMode('grammar', this)">
-                <i class="fa-solid fa-spell-check"></i> Grammar
-            </button>
-            <button class="tab-btn" onclick="setMode('solver', this)">
-                <i class="fa-solid fa-calculator"></i> Solver
-            </button>
+        <div class="btn-group">
+            <button id="startBtn" onclick="startCamera()">ካሜራ አብራ</button>
+            <button id="stopBtn" onclick="stopCamera()" disabled>ካሜራ አጥፋ</button>
         </div>
 
-        <textarea id="promptInput" placeholder="Enter your essay topic or title..."></textarea>
-
-        <button class="action-btn" onclick="generateResult()">
-            <i class="fa-solid fa-wand-magic-sparkles"></i> Generate Answer
-        </button>
-
-        <div class="output-card" id="outputArea">
-            <span style="color: var(--text-dim);">Your AI output will appear here...</span>
-        </div>
+        <p id="status">ሁኔታ፦ ካሜራው አልተከፈተም</p>
     </div>
 
-    <div class="ad-placeholder">
-        📢 Advertisement Space (AdMob Native)
-    </div>
-</div>
+    <script>
+        let stream = null;
 
-<script>
-    const GROQ_API_KEY = "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"; 
+        async function startCamera() {
+            const video = document.getElementById('webcam');
+            const status = document.getElementById('status');
+            const startBtn = document.getElementById('startBtn');
+            const stopBtn = document.getElementById('stopBtn');
 
-    let currentMode = 'essay';
+            try {
+                // የካሜራ እና ማይክሮፎን (ድምፅ) ፈቃድ መጠየቂያ
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: true, 
+                    audio: true 
+                });
+                
+                video.srcObject = stream;
+                status.innerText = "ሁኔታ፦ ካሜራ እና ድምፅ በትክክል እየሰሩ ነው!";
+                status.style.color = "green";
 
-    function setMode(mode, btn) {
-        currentMode = mode;
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-
-        const input = document.getElementById('promptInput');
-        if (mode === 'essay') input.placeholder = "Enter your essay topic or title...";
-        else if (mode === 'grammar') input.placeholder = "Paste your text to correct grammar...";
-        else input.placeholder = "Enter your math or homework problem...";
-    }
-
-    async function generateResult() {
-        const text = document.getElementById('promptInput').value.trim();
-        const output = document.getElementById('outputArea');
-
-        if (!text) {
-            alert("Please enter a question or topic!");
-            return;
-        }
-
-        output.innerHTML = `<span style="color: #6366f1;">⏳ Processing with Groq AI...</span>`;
-
-        let sysPrompt = "You are a helpful student assistant. Always respond in English.";
-        if (currentMode === 'essay') sysPrompt = "Write a clear, well-structured essay based on the topic in English.";
-        else if (currentMode === 'grammar') sysPrompt = "Correct grammar, spelling, and style errors in the input text. Provide the response in English.";
-        else sysPrompt = "Solve the problem step-by-step with clear explanations in English.";
-
-        try {
-            const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${GROQ_API_KEY}`
-                },
-                body: JSON.stringify({
-                    model: "openai/gpt-oss-120b",
-                    messages: [
-                        { role: "system", content: sysPrompt },
-                        { role: "user", content: text }
-                    ]
-                })
-            });
-
-            const data = await res.json();
-            if (data.choices && data.choices[0]) {
-                output.innerText = data.choices[0].message.content;
-            } else {
-                output.innerText = "❌ Error: " + (data.error ? data.error.message : "Request failed.");
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+            } catch (err) {
+                console.error("ስህተት፦ ", err);
+                status.innerText = "ስህተት፦ ካሜራ ወይም ማይክሮፎን መክፈት አልተቻለም።";
+                status.style.color = "red";
             }
-        } catch (e) {
-            output.innerText = "❌ Connection Error: " + e.message;
         }
-    }
-</script>
+
+        function stopCamera() {
+            const video = document.getElementById('webcam');
+            const status = document.getElementById('status');
+            const startBtn = document.getElementById('startBtn');
+            const stopBtn = document.getElementById('stopBtn');
+
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                video.srcObject = null;
+                status.innerText = "ሁኔታ፦ ካሜራው ተዘግቷል።";
+                status.style.color = "#555";
+
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+            }
+        }
+    </script>
 
 </body>
 </html>
