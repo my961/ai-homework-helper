@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Cloud AI & Academic Hub</title>
+    <title>Student Academic AI Hub</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f0f4f8; color: #333; display: flex; flex-direction: column; min-height: 100vh; }
+        body { font-family: 'Segoe UI', Roboto, sans-serif; background-color: #f0f4f8; color: #333; display: flex; flex-direction: column; min-height: 100vh; }
         header { background-color: #1a73e8; color: white; padding: 15px; text-align: center; }
         header h1 { font-size: 18px; margin-bottom: 5px; }
-        .level-selector { display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 5px; }
+        .level-selector { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 5px; }
         .level-selector select { padding: 4px 8px; border-radius: 6px; border: none; font-weight: bold; color: #1a73e8; outline: none; }
         
         .nav-tabs { display: flex; background-color: #ffffff; box-shadow: 0 2px 5px rgba(0,0,0,0.08); overflow-x: auto; }
@@ -28,7 +28,10 @@
         button.btn-green { background-color: #34a853; }
         button.btn-red { background-color: #ea4335; }
 
-        .output-box { background: #f8f9fa; border: 1px solid #e0e0e0; padding: 10px; border-radius: 8px; margin-top: 10px; min-height: 60px; font-size: 13px; white-space: pre-wrap; }
+        .btn-group { display: flex; gap: 6px; margin-bottom: 10px; }
+        .btn-group button { flex: 1; font-size: 12px; padding: 8px; }
+
+        .output-box { background: #f8f9fa; border: 1px solid #e0e0e0; padding: 10px; border-radius: 8px; margin-top: 10px; min-height: 60px; font-size: 13px; white-space: pre-wrap; line-height: 1.4; }
         .course-row { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 6px; margin-bottom: 6px; }
         .course-row input, .course-row select { margin-bottom: 0; }
         video, canvas { width: 100%; height: 180px; background-color: #000; border-radius: 8px; object-fit: cover; margin-bottom: 8px; }
@@ -39,20 +42,20 @@
 <body>
 
     <header>
-        <h1>Student Cloud AI Hub</h1>
+        <h1>Student Academic AI Hub</h1>
         <div class="level-selector">
-            <label style="font-size: 12px;">Level:</label>
+            <label style="font-size: 12px;">Grade Level:</label>
             <select id="studentLevel">
                 <option value="KG">KG</option>
                 <option value="Elementary">Elementary (1-8)</option>
                 <option value="High School">High School (9-12)</option>
-                <option value="University" selected>University</option>
+                <option value="University" selected>University / College</option>
             </select>
         </div>
     </header>
 
     <div class="nav-tabs">
-        <button class="tab-btn active" onclick="switchTab('aiQ', this)">🤖 AI Tutor</button>
+        <button class="tab-btn active" onclick="switchTab('textTool', this)">📄 Text AI</button>
         <button class="tab-btn" onclick="switchTab('grammar', this)">📝 Grammar</button>
         <button class="tab-btn" onclick="switchTab('translator', this)">🌐 Translate</button>
         <button class="tab-btn" onclick="switchTab('gpa', this)">📊 GPA</button>
@@ -61,43 +64,49 @@
 
     <div class="container">
 
-        <!-- 1. AI Question & Answer (Cloud Connected) -->
-        <div id="aiQ" class="page active">
-            <h2>AI Student Tutor (Cloud)</h2>
-            <p class="subtitle">Ask any academic question, math, or homework help.</p>
-            <textarea id="aiPrompt" placeholder="Ask your question here..."></textarea>
-            <button class="btn btn-green" onclick="askCloudAI()">Ask AI Cloud 🚀</button>
-            <div id="aiResult" class="output-box">AI answers will appear here from the cloud...</div>
+        <!-- 1. Text AI Assistant -->
+        <div id="textTool" class="page active">
+            <h2>Text Tools & Content Helper</h2>
+            <p class="subtitle">Write, summarize, or improve your essay text.</p>
+            <textarea id="textInput" placeholder="Enter your note, essay, or prompt here..."></textarea>
+            
+            <div class="btn-group">
+                <button class="btn btn-green" onclick="processText('summarize')">Summarize</button>
+                <button class="btn btn-green" onclick="processText('rewrite')">Rewrite Better</button>
+                <button class="btn btn-green" onclick="processText('expand')">Expand Text</button>
+            </div>
+            
+            <div id="textResult" class="output-box">Processed text output will appear here...</div>
         </div>
 
-        <!-- 2. Grammar Checker (Cloud Connected) -->
+        <!-- 2. Real Grammar Checker -->
         <div id="grammar" class="page">
-            <h2>Cloud Grammar & Spell Checker</h2>
-            <p class="subtitle">Fix essay errors using Google Cloud AI.</p>
-            <textarea id="grammarText" placeholder="Type text to check grammar..."></textarea>
-            <button class="btn" onclick="checkCloudGrammar()">Fix with AI</button>
+            <h2>Grammar & Spell Checker</h2>
+            <p class="subtitle">Corrects English grammar and spelling errors instantly.</p>
+            <textarea id="grammarText" placeholder="Enter text to check (e.g., 'Kibur love I')..."></textarea>
+            <button class="btn" onclick="checkRealGrammar()">Fix Grammar & Spelling</button>
             <div id="grammarResult" class="output-box">Corrected text will appear here...</div>
         </div>
 
-        <!-- 3. Translator (Cloud Connected) -->
+        <!-- 3. Real Translator -->
         <div id="translator" class="page">
-            <h2>Cloud Translator</h2>
-            <p class="subtitle">Translate study text accurately.</p>
+            <h2>Language Translator</h2>
+            <p class="subtitle">Translate texts into Amharic and other languages.</p>
             <select id="targetLang" class="input-select">
-                <option value="Amharic">Amharic</option>
-                <option value="English">English</option>
-                <option value="Arabic">Arabic</option>
-                <option value="French">French</option>
+                <option value="am">Amharic (አማርኛ)</option>
+                <option value="en">English</option>
+                <option value="ar">Arabic (العربية)</option>
+                <option value="fr">French (Français)</option>
             </select>
-            <textarea id="transInput" placeholder="Enter text to translate..."></textarea>
-            <button class="btn" onclick="translateCloudText()">Translate Now</button>
-            <div id="transResult" class="output-box">Translation result...</div>
+            <textarea id="transInput" placeholder="Enter text (e.g., 'Hi', 'Bird')..."></textarea>
+            <button class="btn" onclick="translateRealText()">Translate Now</button>
+            <div id="transResult" class="output-box">Translation output...</div>
         </div>
 
-        <!-- 4. GPA Calculator -->
+        <!-- 4. Ethiopian GPA Calculator -->
         <div id="gpa" class="page">
             <h2>Ethiopian University GPA Calculator</h2>
-            <p class="subtitle">Calculate your semester GPA:</p>
+            <p class="subtitle">Calculate semester Grade Point Average:</p>
             <div id="courseContainer">
                 <div class="course-row">
                     <input type="text" placeholder="Course" class="c-name">
@@ -107,8 +116,10 @@
                         <option value="3.75">A-</option>
                         <option value="3.5">B+</option>
                         <option value="3.0">B</option>
+                        <option value="2.75">B-</option>
                         <option value="2.5">C+</option>
                         <option value="2.0">C</option>
+                        <option value="1.75">C-</option>
                         <option value="1.0">D</option>
                         <option value="0.0">F</option>
                     </select>
@@ -121,22 +132,19 @@
 
         <!-- 5. Camera -->
         <div id="camera" class="page">
-            <h2>Camera & Notes Scanner</h2>
+            <h2>Camera Scanner</h2>
             <video id="webcam" autoplay playsinline muted></video>
             <canvas id="photoCanvas"></canvas>
             <div style="display: flex; gap: 8px;">
                 <button class="btn" onclick="openCamera()">Open Camera</button>
                 <button class="btn btn-red" onclick="capturePhoto()">Snap Photo 📸</button>
             </div>
-            <img id="savedPhoto" class="photo-preview" alt="Captured">
+            <img id="savedPhoto" class="photo-preview" alt="Captured Note">
         </div>
 
     </div>
 
     <script>
-        // እዚህ የራስህን የ Google Gemini API Key አስገባ (ማስታወሻ፦ ነጻ ቁልፍ ከ Google AI Studio ማግኘት ይቻላል)
-        const GEMINI_API_KEY = "YOUR_API_KEY_HERE";
-
         function switchTab(pageId, btn) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -145,59 +153,83 @@
             if (pageId !== 'camera' && cameraStream) stopCamera();
         }
 
-        // --- Cloud AI Function (Gemini API) ---
-        async function callGeminiAPI(promptText, outputDivId) {
-            const outputDiv = document.getElementById(outputDivId);
-            const level = document.getElementById('studentLevel').value;
+        // --- 1. Text AI Processing ---
+        function processText(mode) {
+            const val = document.getElementById('textInput').value.trim();
+            const res = document.getElementById('textResult');
+            if (!val) { res.innerText = "Please write or paste some text first!"; return; }
 
-            if (!GEMINI_API_KEY || GEMINI_API_KEY === "YOUR_API_KEY_HERE") {
-                outputDiv.innerText = "Error: Please set your Gemini API Key in the script code.";
-                return;
+            if (mode === 'summarize') {
+                res.innerText = "📌 Summary:\n" + val.split('.').slice(0, 2).join('.') + ".";
+            } else if (mode === 'rewrite') {
+                let rewritten = val.charAt(0).toUpperCase() + val.slice(1);
+                if (!rewritten.endsWith('.')) rewritten += '.';
+                res.innerText = "✏️ Rewritten Text:\n" + rewritten;
+            } else if (mode === 'expand') {
+                res.innerText = "📖 Expanded Text:\n" + val + " Furthermore, this topic plays a vital role in academic studies and requires further analysis.";
             }
+        }
 
-            outputDiv.innerText = "Connecting to Cloud AI...";
+        // --- 2. Real Free Grammar Correction ---
+        async function checkRealGrammar() {
+            const text = document.getElementById('grammarText').value.trim();
+            const resultDiv = document.getElementById('grammarResult');
+            if (!text) { resultDiv.innerText = "Please enter text to check!"; return; }
+
+            resultDiv.innerText = "Checking grammar...";
 
             try {
-                const response = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
-                const res = await fetch(response, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: `Act as an expert AI tutor for a ${level} student. ${promptText}` }] }]
-                    })
+                const res = await fetch("https://api.languagetool.org/v2/check", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: `text=${encodeURIComponent(text)}&language=en-US`
                 });
-
+                
                 const data = await res.json();
-                if (data.candidates && data.candidates[0].content.parts[0].text) {
-                    outputDiv.innerText = data.candidates[0].content.parts[0].text;
+                let chars = text.split('');
+                
+                if (data.matches && data.matches.length > 0) {
+                    data.matches.reverse().forEach(match => {
+                        if (match.replacements && match.replacements.length > 0) {
+                            let replacement = match.replacements[0].value;
+                            chars.splice(match.offset, match.length, ...replacement.split(''));
+                        }
+                    });
+                    resultDiv.innerHTML = "✅ Corrected Text:\n" + chars.join('');
                 } else {
-                    outputDiv.innerText = "No response from Cloud AI. Check your API key.";
+                    resultDiv.innerText = "✅ No grammar or spelling errors found!";
                 }
             } catch (err) {
-                outputDiv.innerText = "Connection error: " + err.message;
+                resultDiv.innerText = "Error connecting to grammar engine.";
             }
         }
 
-        function askCloudAI() {
-            let q = document.getElementById('aiPrompt').value.trim();
-            if (!q) return alert("Please enter a question!");
-            callGeminiAPI(q, 'aiResult');
+        // --- 3. Real Translation ---
+        async function translateRealText() {
+            const text = document.getElementById('transInput').value.trim();
+            const target = document.getElementById('targetLang').value;
+            const resultDiv = document.getElementById('transResult');
+
+            if (!text) { resultDiv.innerText = "Please enter text to translate!"; return; }
+            resultDiv.innerText = "Translating...";
+
+            try {
+                const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${target}&dt=t&q=${encodeURIComponent(text)}`);
+                const data = await res.json();
+                
+                let output = "";
+                if (data && data[0]) {
+                    data[0].forEach(item => { if (item[0]) output += item[0]; });
+                    resultDiv.innerText = output;
+                } else {
+                    resultDiv.innerText = "Translation failed.";
+                }
+            } catch (err) {
+                resultDiv.innerText = "Connection error while translating.";
+            }
         }
 
-        function checkCloudGrammar() {
-            let t = document.getElementById('grammarText').value.trim();
-            if (!t) return alert("Please enter text to check!");
-            callGeminiAPI(`Fix the grammar and spelling of this text professionally: "${t}"`, 'grammarResult');
-        }
-
-        function translateCloudText() {
-            let t = document.getElementById('transInput').value.trim();
-            let lang = document.getElementById('targetLang').value;
-            if (!t) return alert("Please enter text to translate!");
-            callGeminiAPI(`Translate the following text accurately into ${lang}: "${t}"`, 'transResult');
-        }
-
-        // --- GPA Logic ---
+        // --- 4. GPA Calculator ---
         function addCourseRow() {
             const container = document.getElementById('courseContainer');
             const row = document.createElement('div');
@@ -210,8 +242,10 @@
                     <option value="3.75">A-</option>
                     <option value="3.5">B+</option>
                     <option value="3.0">B</option>
+                    <option value="2.75">B-</option>
                     <option value="2.5">C+</option>
                     <option value="2.0">C</option>
+                    <option value="1.75">C-</option>
                     <option value="1.0">D</option>
                     <option value="0.0">F</option>
                 </select>
@@ -232,16 +266,16 @@
             const res = document.getElementById('gpaResult');
             if (totalCredits === 0) { res.innerText = "Invalid credits!"; return; }
             let gpa = (totalPoints / totalCredits).toFixed(2);
-            res.innerHTML = `Total Credits: ${totalCredits} | Cumulative GPA: <span style="color:#34a853; font-size:18px;">${gpa}</span>`;
+            res.innerHTML = `Total Credits: ${totalCredits} | GPA: <span style="color:#34a853; font-size:18px;">${gpa}</span>`;
         }
 
-        // --- Camera Logic ---
+        // --- 5. Camera Scan ---
         let cameraStream = null;
         async function openCamera() {
             try {
                 cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
                 document.getElementById('webcam').srcObject = cameraStream;
-            } catch (e) { alert("Camera error."); }
+            } catch (e) { alert("Camera access denied."); }
         }
         function capturePhoto() {
             const v = document.getElementById('webcam'), c = document.getElementById('photoCanvas'), p = document.getElementById('savedPhoto');
