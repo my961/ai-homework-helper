@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Academic AI Hub</title>
+    <!-- Free Puter AI Library (No API Key Required) -->
+    <script src="https://js.puter.com/v2/"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Segoe UI', Roboto, sans-serif; background-color: #f0f4f8; color: #333; display: flex; flex-direction: column; min-height: 100vh; }
@@ -28,9 +30,6 @@
         button.btn-green { background-color: #34a853; }
         button.btn-red { background-color: #ea4335; }
 
-        .btn-group { display: flex; gap: 6px; margin-bottom: 10px; }
-        .btn-group button { flex: 1; font-size: 12px; padding: 8px; }
-
         .output-box { background: #f8f9fa; border: 1px solid #e0e0e0; padding: 10px; border-radius: 8px; margin-top: 10px; min-height: 60px; font-size: 13px; white-space: pre-wrap; line-height: 1.4; }
         .course-row { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 6px; margin-bottom: 6px; }
         .course-row input, .course-row select { margin-bottom: 0; }
@@ -46,7 +45,7 @@
         <div class="level-selector">
             <label style="font-size: 12px;">Grade Level:</label>
             <select id="studentLevel">
-                <option value="KG">KG</option>
+                <option value="KG">KG / Kindergarten</option>
                 <option value="Elementary">Elementary (1-8)</option>
                 <option value="High School">High School (9-12)</option>
                 <option value="University" selected>University / College</option>
@@ -55,7 +54,7 @@
     </header>
 
     <div class="nav-tabs">
-        <button class="tab-btn active" onclick="switchTab('textTool', this)">📄 Text AI</button>
+        <button class="tab-btn active" onclick="switchTab('aiChat', this)">🤖 Real AI Chat</button>
         <button class="tab-btn" onclick="switchTab('grammar', this)">📝 Grammar</button>
         <button class="tab-btn" onclick="switchTab('translator', this)">🌐 Translate</button>
         <button class="tab-btn" onclick="switchTab('gpa', this)">📊 GPA</button>
@@ -64,42 +63,36 @@
 
     <div class="container">
 
-        <!-- 1. Text AI Assistant -->
-        <div id="textTool" class="page active">
-            <h2>Text Tools & Content Helper</h2>
-            <p class="subtitle">Write, summarize, or improve your essay text.</p>
-            <textarea id="textInput" placeholder="Enter your note, essay, or prompt here..."></textarea>
-            
-            <div class="btn-group">
-                <button class="btn btn-green" onclick="processText('summarize')">Summarize</button>
-                <button class="btn btn-green" onclick="processText('rewrite')">Rewrite Better</button>
-                <button class="btn btn-green" onclick="processText('expand')">Expand Text</button>
-            </div>
-            
-            <div id="textResult" class="output-box">Processed text output will appear here...</div>
+        <!-- 1. Real AI Chatbot -->
+        <div id="aiChat" class="page active">
+            <h2>Real AI Tutor & Question Solver</h2>
+            <p class="subtitle">Ask any academic or general knowledge question.</p>
+            <textarea id="chatInput" placeholder="e.g., Who is the US president? or Explain Quantum Physics..."></textarea>
+            <button class="btn btn-green" onclick="askRealAI()">Ask AI Tutor 🚀</button>
+            <div id="chatResult" class="output-box">AI Response will appear here...</div>
         </div>
 
-        <!-- 2. Real Grammar Checker -->
+        <!-- 2. Real AI Grammar Checker -->
         <div id="grammar" class="page">
-            <h2>Grammar & Spell Checker</h2>
-            <p class="subtitle">Corrects English grammar and spelling errors instantly.</p>
-            <textarea id="grammarText" placeholder="Enter text to check (e.g., 'Kibur love I')..."></textarea>
-            <button class="btn" onclick="checkRealGrammar()">Fix Grammar & Spelling</button>
+            <h2>AI Grammar & Sentence Fixer</h2>
+            <p class="subtitle">Corrects broken grammar into natural English.</p>
+            <textarea id="grammarInput" placeholder="e.g., Kibur love I..."></textarea>
+            <button class="btn" onclick="fixGrammarAI()">Fix Grammar with AI</button>
             <div id="grammarResult" class="output-box">Corrected text will appear here...</div>
         </div>
 
-        <!-- 3. Real Translator -->
+        <!-- 3. Real AI Translator -->
         <div id="translator" class="page">
-            <h2>Language Translator</h2>
-            <p class="subtitle">Translate texts into Amharic and other languages.</p>
+            <h2>AI Language Translator</h2>
+            <p class="subtitle">Translates meaning accurately using AI.</p>
             <select id="targetLang" class="input-select">
-                <option value="am">Amharic (አማርኛ)</option>
-                <option value="en">English</option>
-                <option value="ar">Arabic (العربية)</option>
-                <option value="fr">French (Français)</option>
+                <option value="Amharic">Amharic (አማርኛ)</option>
+                <option value="English">English</option>
+                <option value="Arabic">Arabic (العربية)</option>
+                <option value="French">French (Français)</option>
             </select>
-            <textarea id="transInput" placeholder="Enter text (e.g., 'Hi', 'Bird')..."></textarea>
-            <button class="btn" onclick="translateRealText()">Translate Now</button>
+            <textarea id="transInput" placeholder="Enter text to translate (e.g., Hi, How are you?)..."></textarea>
+            <button class="btn" onclick="translateAI()">Translate with AI</button>
             <div id="transResult" class="output-box">Translation output...</div>
         </div>
 
@@ -153,79 +146,53 @@
             if (pageId !== 'camera' && cameraStream) stopCamera();
         }
 
-        // --- 1. Text AI Processing ---
-        function processText(mode) {
-            const val = document.getElementById('textInput').value.trim();
-            const res = document.getElementById('textResult');
-            if (!val) { res.innerText = "Please write or paste some text first!"; return; }
+        // --- 1. Real AI Chat Engine ---
+        async function askRealAI() {
+            const prompt = document.getElementById('chatInput').value.trim();
+            const level = document.getElementById('studentLevel').value;
+            const resBox = document.getElementById('chatResult');
 
-            if (mode === 'summarize') {
-                res.innerText = "📌 Summary:\n" + val.split('.').slice(0, 2).join('.') + ".";
-            } else if (mode === 'rewrite') {
-                let rewritten = val.charAt(0).toUpperCase() + val.slice(1);
-                if (!rewritten.endsWith('.')) rewritten += '.';
-                res.innerText = "✏️ Rewritten Text:\n" + rewritten;
-            } else if (mode === 'expand') {
-                res.innerText = "📖 Expanded Text:\n" + val + " Furthermore, this topic plays a vital role in academic studies and requires further analysis.";
-            }
-        }
-
-        // --- 2. Real Free Grammar Correction ---
-        async function checkRealGrammar() {
-            const text = document.getElementById('grammarText').value.trim();
-            const resultDiv = document.getElementById('grammarResult');
-            if (!text) { resultDiv.innerText = "Please enter text to check!"; return; }
-
-            resultDiv.innerText = "Checking grammar...";
+            if (!prompt) { resBox.innerText = "Please write a question!"; return; }
+            resBox.innerText = "Thinking... 🤖";
 
             try {
-                const res = await fetch("https://api.languagetool.org/v2/check", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                    body: `text=${encodeURIComponent(text)}&language=en-US`
-                });
-                
-                const data = await res.json();
-                let chars = text.split('');
-                
-                if (data.matches && data.matches.length > 0) {
-                    data.matches.reverse().forEach(match => {
-                        if (match.replacements && match.replacements.length > 0) {
-                            let replacement = match.replacements[0].value;
-                            chars.splice(match.offset, match.length, ...replacement.split(''));
-                        }
-                    });
-                    resultDiv.innerHTML = "✅ Corrected Text:\n" + chars.join('');
-                } else {
-                    resultDiv.innerText = "✅ No grammar or spelling errors found!";
-                }
+                const response = await puter.ai.chat(`You are an academic tutor for a ${level} student. Answer clearly: ${prompt}`);
+                resBox.innerText = response.toString();
             } catch (err) {
-                resultDiv.innerText = "Error connecting to grammar engine.";
+                resBox.innerText = "Error fetching AI response. Check connection.";
             }
         }
 
-        // --- 3. Real Translation ---
-        async function translateRealText() {
+        // --- 2. Real AI Grammar Engine ---
+        async function fixGrammarAI() {
+            const text = document.getElementById('grammarInput').value.trim();
+            const resBox = document.getElementById('grammarResult');
+
+            if (!text) { resBox.innerText = "Please enter text to fix!"; return; }
+            resBox.innerText = "Fixing grammar... 📝";
+
+            try {
+                const response = await puter.ai.chat(`Fix the grammar and spelling errors of this text and output ONLY the corrected sentence: "${text}"`);
+                resBox.innerText = response.toString();
+            } catch (err) {
+                resBox.innerText = "Error checking grammar.";
+            }
+        }
+
+        // --- 3. Real AI Translator ---
+        async function translateAI() {
             const text = document.getElementById('transInput').value.trim();
-            const target = document.getElementById('targetLang').value;
-            const resultDiv = document.getElementById('transResult');
+            const lang = document.getElementById('targetLang').value;
+            const resBox = document.getElementById('transResult');
 
-            if (!text) { resultDiv.innerText = "Please enter text to translate!"; return; }
-            resultDiv.innerText = "Translating...";
+            if (!text) { resBox.innerText = "Please enter text to translate!"; return; }
+            resBox.innerText = "Translating... 🌐";
 
             try {
-                const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${target}&dt=t&q=${encodeURIComponent(text)}`);
-                const data = await res.json();
-                
-                let output = "";
-                if (data && data[0]) {
-                    data[0].forEach(item => { if (item[0]) output += item[0]; });
-                    resultDiv.innerText = output;
-                } else {
-                    resultDiv.innerText = "Translation failed.";
-                }
+                const response = await puter.ai.chat(`Translate the following text into ${lang}. Output ONLY the translated text: "${text}"`);
+                resBox.innerText = response.toString();
             } catch (err) {
-                resultDiv.innerText = "Connection error while translating.";
+                resBox.innerText = "Error translating text.";
             }
         }
 
