@@ -1,10 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Camera, Upload, Calculator, BookOpen, Languages, CheckCircle, RefreshCw } from 'lucide-react';
-import { GoogleGenAI } from '@google/generative-ai';
-
-// Initialize Gemini API (Will read from your Vercel Environment Variables)
-const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
-const ai = new GoogleGenAI({ apiKey });
+import { Camera, Calculator, BookOpen, Languages, RefreshCw, CheckCircle } from 'lucide-react';
 
 // 7 Ethiopian Universities Grading System Data
 const universityGrading = {
@@ -22,7 +17,7 @@ export default function StudentHubApp() {
   const [loading, setLoading] = useState(false);
   const [aiResponse, setAiResponse] = useState('');
 
-  // GPA Calculator States
+  // GPA States
   const [selectedUni, setSelectedUni] = useState('AAU (Addis Ababa)');
   const [courses, setCourses] = useState([{ name: '', grade: 'A', credit: 3 }]);
   const [calculatedGPA, setCalculatedGPA] = useState(null);
@@ -30,170 +25,160 @@ export default function StudentHubApp() {
   // Text AI Query State
   const [textQuery, setTextQuery] = useState('');
 
-  // Photo/Camera States
+  // Photo States
   const [imagePreview, setImagePreview] = useState(null);
-  const [imageBytes, setImageBytes] = useState(null);
+  const [imageBase64, setImageBase64] = useState(null);
   const fileInputRef = useRef(null);
 
-  // Grammar & Translation States
+  // Language States
   const [textToProcess, setTextToProcess] = useState('');
   const [targetLang, setTargetLang] = useState('Amharic');
 
-  // Helper: Convert File to Generative Part (Bytes)
-  const fileToGenerativePart = async (file) => {
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64Data = reader.result.split(',')[1];
-        resolve({
-          inlineData: { data: base64Data, mimeType: file.type }
-        });
-      };
-      reader.readAsDataURL(file);
-    });
+  const groqApiKey = process.env.NEXT_PUBLIC_GROQ_API_KEY;
+
+  // Function to call Groq Cloud API
+  const callGroqAPI = async (messages, isVision = false) => {
+    setLoading(true);
+    try {
+      const response = await fetch('https://groq.com', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${groqApiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: isVision ? "llama-3.2-11b-vision-preview" : "llama3-8b-8192",
+          messages: messages,
+          temperature: 0.2
+        })
+      });
+      const data = await response.json();
+      setAiResponse(data.choices[0].message.content);
+    } catch (error) {
+      setAiResponse("API Error. Please check your Vercel Environment Variables setup.");
+    }
+    setLoading(false);
   };
 
-  // Handle Image Upload
-  const handleImageChange = async (e) => {
+  // Handle Photo Selection
+  const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       setImagePreview(URL.createObjectURL(file));
-      const part = await fileToGenerativePart(file);
-      setImageBytes(part);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImageBase64(reader.result);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  // 1. Calculate GPA Locally
+  // 1. Local GPA Calculator
   const calculateGPA = () => {
     const grading = universityGrading[selectedUni];
     let totalPoints = 0;
     let totalCredits = 0;
-
-    courses.forEach(course => {
-      const credit = parseFloat(course.credit) || 0;
-      const point = grading[course.grade] || 0;
+    courses.forEach(c => {
+      const credit = parseFloat(c.credit) || 0;
+      const point = grading[c.grade] || 0;
       totalPoints += (point * credit);
       totalCredits += credit;
     });
-
-    const gpa = totalCredits > 0 ? (totalPoints / totalCredits).toFixed(2) : 0;
-    setCalculatedGPA(gpa);
+    setCalculatedGPA(totalCredits > 0 ? (totalPoints / totalCredits).toFixed(2) : 0);
   };
 
-  // 2. Ask Gemini via Text
-  const askGeminiText = async () => {
+  // 2. Text AI
+  const askGroqText = () => {
     if (!textQuery.trim()) return;
-    setLoading(true);
-    try {
-      const model = ai.getGenerativeModel({ model: "gemini-2.5-flash" });
-      const result = await model.generateContent(textQuery);
-      setAiResponse(result.response.text());
-    } catch (error) {
-      setAiResponse("Error connecting to Gemini API. Check your API key Configuration.");
-    }
-    setLoading(false);
+    const messages = [{ role: "user", content: `Answer this academic question clearly in English: ${textQuery}` }];
+    callGroqAPI(messages, false);
   };
 
-  // 3. Analyze Image with Gemini (Camera/Upload)
-  const analyzeImage = async () => {
-    if (!imageBytes) return;
-    setLoading(true);
-    try {
-      const model = ai.getGenerativeModel({ model: "gemini-2.5-flash" });
-      const prompt = "Analyze this educational photo or question paper. Read the content and provide a detailed, accurate answer or solution step-by-step.";
-      const result = await model.generateContent([prompt, imageBytes]);
-      setAiResponse(result.response.text());
-    } catch (error) {
-      setAiResponse("Failed to read image. Ensure your API Key is active.");
-    }
-    setLoading(false);
-  };
-
-  // 4. Grammar Checker & Translator
-  const processTextFeature = async (mode) => {
-    if (!textToProcess.trim()) return;
-    setLoading(true);
-    try {
-      const model = ai.getGenerativeModel({ model: "gemini-2.5-flash" });
-      let prompt = "";
-      if (mode === 'grammar') {
-        prompt = `Act as an expert English grammar checker. Correct any errors in this text, list the corrections made, and explain why: "${textToProcess}"`;
-      } else {
-        prompt = `Translate the following text accurately into ${targetLang}: "${textToProcess}"`;
+  // 3. Photo Solver (Vision)
+  const analyzeImage = () => {
+    if (!imageBase64) return;
+    const messages = [
+      {
+        role: "user",
+        content: [
+          { type: "text", text: "Analyze this student homework/question photo. Solve or explain it step by step in English." },
+          { type: "image_url", image_url: { url: imageBase64 } }
+        ]
       }
-      const result = await model.generateContent(prompt);
-      setAiResponse(result.response.text());
-    } catch (error) {
-      setAiResponse("Service currently unavailable.");
-    }
-    setLoading(false);
+    ];
+    callGroqAPI(messages, true);
+  };
+
+  // 4. Grammar & Translation
+  const processLanguage = (mode) => {
+    if (!textToProcess.trim()) return;
+    let content = mode === 'grammar' 
+      ? `Act as an English grammar checker. Correct errors in this text and list changes: "${textToProcess}"`
+      : `Translate this text accurately into ${targetLang}: "${textToProcess}"`;
+    callGroqAPI([{ role: "user", content }], false);
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-100 font-sans p-4 sm:p-6">
-      <header className="max-w-4xl mx-auto mb-8 text-center">
-        <h1 className="text-3xl font-extrabold text-blue-400 tracking-tight">University Student Hub AI</h1>
-        <p className="text-gray-400 mt-2">All-in-one smart system optimized for Ethiopian Universities</p>
+    <div className="min-h-screen bg-gray-900 text-gray-100 p-4 font-sans">
+      <header className="max-w-4xl mx-auto mb-6 text-center">
+        <h1 className="text-2xl font-black text-blue-400">Smart Student Hub (Groq Core)</h1>
+        <p className="text-xs text-gray-400">High-speed, unlimited free academic assistance</p>
       </header>
 
-      {/* Navigation Tabs */}
       <nav className="max-w-4xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-2 mb-6">
-        <button onClick={() => { setActiveTab('gpa'); setAiResponse(''); }} className={`p-3 rounded-xl flex items-center justify-center gap-2 border transition ${activeTab === 'gpa' ? 'bg-blue-600 border-blue-500 text-white' : 'bg-gray-800 border-gray-700 text-gray-300'}`}>
-          <Calculator size={18} /> GPA Tool
-        </button>
-        <button onClick={() => { setActiveTab('text-ai'); setAiResponse(''); }} className={`p-3 rounded-xl flex items-center justify-center gap-2 border transition ${activeTab === 'text-ai' ? 'bg-blue-600 border-blue-500 text-white' : 'bg-gray-800 border-gray-700 text-gray-300'}`}>
-          <BookOpen size={18} /> AI Assistant
-        </button>
-        <button onClick={() => { setActiveTab('vision'); setAiResponse(''); }} className={`p-3 rounded-xl flex items-center justify-center gap-2 border transition ${activeTab === 'vision' ? 'bg-blue-600 border-blue-500 text-white' : 'bg-gray-800 border-gray-700 text-gray-300'}`}>
-          <Camera size={18} /> Photo Solver
-        </button>
-        <button onClick={() => { setActiveTab('tools'); setAiResponse(''); }} className={`p-3 rounded-xl flex items-center justify-center gap-2 border transition ${activeTab === 'tools' ? 'bg-blue-600 border-blue-500 text-white' : 'bg-gray-800 border-gray-700 text-gray-300'}`}>
-          <Languages size={18} /> Language Lab
-        </button>
+        <button onClick={() => { setActiveTab('gpa'); setAiResponse(''); }} className={`p-3 rounded-xl flex items-center justify-center gap-2 border text-sm ${activeTab === 'gpa' ? 'bg-blue-600 border-blue-500' : 'bg-gray-800 border-gray-700'}`}><Calculator size={16}/> GPA</button>
+        <button onClick={() => { setActiveTab('text-ai'); setAiResponse(''); }} className={`p-3 rounded-xl flex items-center justify-center gap-2 border text-sm ${activeTab === 'text-ai' ? 'bg-blue-600 border-blue-500' : 'bg-gray-800 border-gray-700'}`}><BookOpen size={16}/> Chat AI</button>
+        <button onClick={() => { setActiveTab('vision'); setAiResponse(''); }} className={`p-3 rounded-xl flex items-center justify-center gap-2 border text-sm ${activeTab === 'vision' ? 'bg-blue-600 border-blue-500' : 'bg-gray-800 border-gray-700'}`}><Camera size={16}/> Camera</button>
+        <button onClick={() => { setActiveTab('tools'); setAiResponse(''); }} className={`p-3 rounded-xl flex items-center justify-center gap-2 border text-sm ${activeTab === 'tools' ? 'bg-blue-600 border-blue-500' : 'bg-gray-800 border-gray-700'}`}><Languages size={16}/> Language</button>
       </nav>
 
-      {/* Main Container */}
-      <main className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
-        
-        {/* Workspace Left Side (2 Columns wide on desktop) */}
-        <div className="md:col-span-2 bg-gray-800 border border-gray-700 rounded-2xl p-6 shadow-xl">
+      <main className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="md:col-span-2 bg-gray-800 border border-gray-700 rounded-xl p-5">
           
-          {/* TAB 1: GPA CALCULATOR */}
           {activeTab === 'gpa' && (
             <div>
-              <h2 className="text-xl font-bold mb-4 text-blue-400">Multi-University GPA System</h2>
-              <label className="block text-xs font-semibold text-gray-400 mb-2 uppercase">Select University</label>
-              <select value={selectedUni} onChange={(e) => setSelectedUni(e.target.value)} className="w-full bg-gray-700 border border-gray-600 rounded-xl p-3 text-white mb-4 outline-none">
-                {Object.keys(universityGrading).map(uni => <option key={uni} value={uni}>{uni}</option>)}
+              <h2 className="text-lg font-bold mb-3 text-blue-400">Ethiopian University GPA Calculator</h2>
+              <select value={selectedUni} onChange={(e) => setSelectedUni(e.target.value)} className="w-full bg-gray-700 p-2.5 rounded-xl mb-4 text-sm outline-none">
+                {Object.keys(universityGrading).map(u => <option key={u} value={u}>{u}</option>)}
               </select>
-
-              <div className="space-y-3 max-h-60 overflow-y-auto mb-4 pr-1">
-                {courses.map((course, index) => (
-                  <div key={index} className="flex gap-2 items-center">
-                    <input type="text" placeholder="Course Name" value={course.name} onChange={(e) => {
-                      const newCourses = [...courses];
-                      newCourses[index].name = e.target.value;
-                      setCourses(newCourses);
-                    }} className="flex-1 bg-gray-700 border border-gray-600 rounded-xl p-2.5 text-white outline-none" />
-                    
-                    <select value={course.grade} onChange={(e) => {
-                      const newCourses = [...courses];
-                      newCourses[index].grade = e.target.value;
-                      setCourses(newCourses);
-                    }} className="bg-gray-700 border border-gray-600 rounded-xl p-2.5 text-white outline-none">
+              <div className="space-y-2 max-h-48 overflow-y-auto mb-3">
+                {courses.map((c, i) => (
+                  <div key={i} className="flex gap-2">
+                    <input type="text" placeholder="Course" value={c.name} onChange={(e) => { const n = [...courses]; n[i].name = e.target.value; setCourses(n); }} className="flex-1 bg-gray-700 p-2 rounded-lg text-sm" />
+                    <select value={c.grade} onChange={(e) => { const n = [...courses]; n[i].grade = e.target.value; setCourses(n); }} className="bg-gray-700 p-2 rounded-lg text-sm">
                       {Object.keys(universityGrading[selectedUni]).map(g => <option key={g} value={g}>{g}</option>)}
                     </select>
-
-                    <input type="number" placeholder="Cr" min="1" max="7" value={course.credit} onChange={(e) => {
-                      const newCourses = [...courses];
-                      newCourses[index].credit = e.target.value;
-                      setCourses(newCourses);
-                    }} className="w-16 bg-gray-700 border border-gray-600 rounded-xl p-2.5 text-white text-center outline-none" />
+                    <input type="number" placeholder="Cr" value={c.credit} onChange={(e) => { const n = [...courses]; n[i].credit = e.target.value; setCourses(n); }} className="w-14 bg-gray-700 p-2 rounded-lg text-center text-sm" />
                   </div>
                 ))}
               </div>
-
               <div className="flex gap-2">
-                <button onClick={() => setCourses([...courses, { name: '', grade: 'A', credit: 3 }])} className="bg-gray-700 hover:bg-gray-600 text-sm font-medium px-4 py-2.5 rounded-xl transition">
-                  + Add Course
-                </button>
+                <button onClick={() => setCourses([...courses, { name: '', grade: 'A', credit: 3 }])} className="bg-gray-700 text-xs px-3 py-2 rounded-lg">+ Add</button>
+                <button onClick={calculateGPA} className="flex-1 bg-blue-600 font-bold py-2 rounded-lg text-sm">Calculate GPA</button>
+              </div>
+              {calculatedGPA !== null && <div className="mt-4 p-3 bg-blue-950/50 border border-blue-800 rounded-xl text-center text-xl font-bold">GPA: {calculatedGPA}</div>}
+            </div>
+          )}
+
+          {activeTab === 'text-ai' && (
+            <div>
+              <h2 className="text-lg font-bold mb-3 text-blue-400">Ask Academic AI</h2>
+              <textarea rows="4" value={textQuery} onChange={(e) => setTextQuery(e.target.value)} placeholder="Type assignment questions here..." className="w-full bg-gray-700 p-3 rounded-xl text-sm outline-none resize-none" />
+              <button onClick={askGroqText} className="w-full mt-2 bg-blue-600 font-bold py-2.5 rounded-xl text-sm">Submit Query</button>
+            </div>
+          )}
+
+          {activeTab === 'vision' && (
+            <div>
+              <h2 className="text-lg font-bold mb-3 text-blue-400">Snap Homework Photo</h2>
+              <div className="border-2 border-dashed border-gray-600 rounded-xl p-4 text-center bg-gray-900/40">
+                <input type="file" accept="image/*" capture="environment" ref={fileInputRef} onChange={handleImageChange} className="hidden" />
+                {imagePreview ? (
+                  <img src={imagePreview} className="max-h-40 mx-auto rounded-lg" />
+                ) : (
+                  <div onClick={() => fileInputRef.current.click()} className="cursor-pointer py-4">
+                    <Camera size={32} className="mx-auto text-gray-400 mb-1" />
+                    <p className="text-xs">Tap to Open Camera / Upload</p>
+                  </div>
+                )}
+              </div>
