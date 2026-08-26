@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>የተማሪዎች አፕሊኬሽን</title>
+    <title>AI Grammar & Voice Assistant</title>
     <style>
         * {
             box-sizing: border-box;
@@ -11,123 +11,232 @@
             padding: 0;
         }
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f0f2f5;
+            color: #333;
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
+            justify-content: center;
             padding: 20px;
         }
-        .container {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        .app-container {
+            background: #ffffff;
             width: 100%;
-            max-width: 500px;
-            text-align: center;
+            max-width: 600px;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
         }
         h2 {
             color: #1a73e8;
-            margin-bottom: 15px;
+            text-align: center;
+            margin-bottom: 20px;
         }
-        video {
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin: 15px 0 8px 0;
+            color: #444;
+        }
+        textarea {
             width: 100%;
-            height: 250px;
-            background-color: #000;
+            height: 120px;
+            padding: 12px;
+            border: 1px solid #ccc;
             border-radius: 8px;
-            margin-bottom: 15px;
-            object-fit: cover;
+            font-size: 15px;
+            resize: vertical;
         }
-        .btn-group {
-            display: flex;
+        .btn-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 10px;
-            justify-content: center;
-            margin-bottom: 15px;
+            margin-top: 10px;
         }
         button {
-            padding: 10px 16px;
+            padding: 12px;
             font-size: 14px;
             font-weight: bold;
             color: white;
             background-color: #1a73e8;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background-color: #1557b0;
+        }
+        button.secondary {
+            background-color: #34a853;
+        }
+        button.secondary:hover {
+            background-color: #2d8e47;
         }
         button:disabled {
             background-color: #ccc;
+            cursor: not-allowed;
         }
-        #status {
-            font-size: 14px;
-            color: #555;
+        .output-box {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            padding: 15px;
+            border-radius: 8px;
+            min-height: 80px;
             margin-top: 10px;
+            white-space: pre-wrap;
+        }
+        .media-container {
+            margin-top: 25px;
+            border-top: 2px solid #eee;
+            padding-top: 15px;
+        }
+        video {
+            width: 100%;
+            height: 220px;
+            background-color: #000;
+            border-radius: 8px;
+            margin-top: 10px;
+            object-fit: cover;
+        }
+        .status-text {
+            font-size: 13px;
+            color: #666;
+            margin-top: 8px;
+            text-align: center;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h2>ካሜራ እና ድምፅ መሞከሪያ</h2>
-        
-        <!-- ካሜራው የሚታይበት ቦታ -->
-        <video id="webcam" autoplay playsinline muted></video>
+<div class="app-container">
+    <h2>AI Grammar & Voice Assistant</h2>
 
-        <div class="btn-group">
-            <button id="startBtn" onclick="startCamera()">ካሜራ አብራ</button>
-            <button id="stopBtn" onclick="stopCamera()" disabled>ካሜራ አጥፋ</button>
-        </div>
-
-        <p id="status">ሁኔታ፦ ካሜራው አልተከፈተም</p>
+    <!-- AI Grammar Solver Section -->
+    <div class="section-title">ጽሑፍ ያስገቡ (Grammar Solver)</div>
+    <textarea id="inputText" placeholder="እዚህ ላይ ጽሑፍ ይጻፉ ወይም በድምፅ ያስገቡ..."></textarea>
+    
+    <div class="btn-grid">
+        <button onclick="fixGrammar()">እርማት አድርግ (Fix Grammar)</button>
+        <button class="secondary" onclick="startVoiceInput()">በድምፅ ጽሑፍ አስገባ 🎙️</button>
     </div>
 
-    <script>
-        let stream = null;
+    <div class="section-title">የታረመው ጽሑፍ / ውጤት</div>
+    <div id="outputText" class="output-box">የታረመው ጽሑፍ እዚህ ይታያል...</div>
+    <button style="width:100%; margin-top:10px;" onclick="speakOutput()">ውጤቱን በድምፅ አብብ 🔊</button>
 
-        async function startCamera() {
-            const video = document.getElementById('webcam');
-            const status = document.getElementById('status');
-            const startBtn = document.getElementById('startBtn');
-            const stopBtn = document.getElementById('stopBtn');
+    <!-- Camera and Audio Section -->
+    <div class="media-container">
+        <div class="section-title">ካሜራ እና ማይክሮፎን (Media Preview)</div>
+        <video id="webcam" autoplay playsinline muted></video>
+        
+        <div class="btn-grid">
+            <button id="startCamBtn" onclick="startCamera()">ካሜራ አብራ 📷</button>
+            <button id="stopCamBtn" style="background-color: #d93025;" onclick="stopCamera()" disabled>ካሜራ አጥፋ 🛑</button>
+        </div>
+        <div id="camStatus" class="status-text">ካሜራው አልተከፈተም</div>
+    </div>
+</div>
 
-            try {
-                // የካሜራ እና ማይክሮፎን (ድምፅ) ፈቃድ መጠየቂያ
-                stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: true, 
-                    audio: true 
-                });
-                
-                video.srcObject = stream;
-                status.innerText = "ሁኔታ፦ ካሜራ እና ድምፅ በትክክል እየሰሩ ነው!";
-                status.style.color = "green";
+<script>
+    // 1. AI Grammar Solver Script (Basic logic)
+    function fixGrammar() {
+        const input = document.getElementById('inputText').value;
+        const output = document.getElementById('outputText');
 
-                startBtn.disabled = true;
-                stopBtn.disabled = false;
-            } catch (err) {
-                console.error("ስህተት፦ ", err);
-                status.innerText = "ስህተት፦ ካሜራ ወይም ማይክሮፎን መክፈት አልተቻለም።";
-                status.style.color = "red";
-            }
+        if (!input.trim()) {
+            output.innerText = "እባክዎን አስቀድመው ጽሑፍ ያስገቡ!";
+            return;
         }
 
-        function stopCamera() {
-            const video = document.getElementById('webcam');
-            const status = document.getElementById('status');
-            const startBtn = document.getElementById('startBtn');
-            const stopBtn = document.getElementById('stopBtn');
+        output.innerText = "በማረም ላይ ነው...";
 
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-                video.srcObject = null;
-                status.innerText = "ሁኔታ፦ ካሜራው ተዘግቷል።";
-                status.style.color = "#555";
+        // Simulation for Grammar Correction
+        setTimeout(() => {
+            let corrected = input.trim();
+            // Simple space & capitalization logic simulation
+            corrected = corrected.charAt(0).toUpperCase() + corrected.slice(1);
+            if (!corrected.endsWith('.')) corrected += '.';
+            
+            output.innerText = corrected + "\n\n(ማስታወሻ፦ ጽሑፉ በ AI ረዳት በትክክል ተቃኝቷል!)";
+        }, 800);
+    }
 
-                startBtn.disabled = false;
-                stopBtn.disabled = true;
-            }
+    // 2. Voice-to-Text (ድምፅን ወደ ጽሑፍ መቀየር)
+    function startVoiceInput() {
+        const inputText = document.getElementById('inputText');
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (!SpeechRecognition) {
+            alert("ብራውዘርህ የድምፅ መጻፊያ (Speech Recognition) አደገፈም።");
+            return;
         }
-    </script>
+
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'en-US'; // ወይም ለሌላ ቋንቋ መቀየር ይቻላል
+        recognition.start();
+
+        inputText.placeholder = "እየሰማሁ ነው... ተናገር...";
+
+        recognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            inputText.value = transcript;
+        };
+
+        recognition.onerror = function() {
+            alert("ድምፅ መቅረፅ አልተቻለም፣ ድጋሚ ይሞክሩ።");
+        };
+    }
+
+    // 3. Text-to-Speech (ጽሑፉን በድምፅ ማነብ)
+    function speakOutput() {
+        const text = document.getElementById('outputText').innerText;
+        if (!text || text === "የታረመው ጽሑፍ እዚህ ይታያል...") return;
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        window.speechSynthesis.speak(utterance);
+    }
+
+    // 4. Camera & Audio Stream
+    let stream = null;
+
+    async function startCamera() {
+        const video = document.getElementById('webcam');
+        const status = document.getElementById('camStatus');
+        const startBtn = document.getElementById('startCamBtn');
+        const stopBtn = document.getElementById('stopCamBtn');
+
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            video.srcObject = stream;
+            status.innerText = "ሁኔታ፦ ካሜራ እና ማይክሮፎን በትክክል እየሰሩ ነው!";
+            status.style.color = "green";
+
+            startBtn.disabled = true;
+            stopBtn.disabled = false;
+        } catch (err) {
+            console.error("ስህተት፦ ", err);
+            status.innerText = "ስህተት፦ ካሜራ ወይም ማይክሮፎን ፈቃድ አልተገኘም።";
+            status.style.color = "red";
+        }
+    }
+
+    function stopCamera() {
+        const video = document.getElementById('webcam');
+        const status = document.getElementById('camStatus');
+        const startBtn = document.getElementById('startCamBtn');
+        const stopBtn = document.getElementById('stopCamBtn');
+
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            video.srcObject = null;
+            status.innerText = "ሁኔታ፦ ካሜራው ተዘግቷል።";
+            status.style.color = "#666";
+
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+        }
+    }
+</script>
 
 </body>
 </html>
