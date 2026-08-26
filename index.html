@@ -3,449 +3,255 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>All-in-One Student AI & GPA Assistant</title>
+    <title>Student Cloud AI & Academic Hub</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f0f4f8;
-            color: #333;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-        header {
-            background-color: #1a73e8;
-            color: white;
-            padding: 15px;
-            text-align: center;
-        }
-        header h1 {
-            font-size: 20px;
-            margin-bottom: 5px;
-        }
-        .level-selector {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            margin-top: 5px;
-        }
-        .level-selector select {
-            padding: 5px 10px;
-            border-radius: 6px;
-            border: none;
-            font-weight: bold;
-            color: #1a73e8;
-            outline: none;
-        }
-        /* Navigation Tabs */
-        .nav-tabs {
-            display: flex;
-            background-color: #ffffff;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
-            overflow-x: auto;
-        }
-        .tab-btn {
-            flex: 1;
-            padding: 12px 6px;
-            background: none;
-            border: none;
-            border-bottom: 3px solid transparent;
-            font-size: 12px;
-            font-weight: bold;
-            color: #555;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: 0.3s;
-        }
-        .tab-btn.active {
-            color: #1a73e8;
-            border-bottom: 3px solid #1a73e8;
-            background-color: #f8f9fa;
-        }
-        /* Container & Pages */
-        .container {
-            flex: 1;
-            padding: 15px;
-            max-width: 600px;
-            width: 100%;
-            margin: 0 auto;
-        }
-        .page {
-            display: none;
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-        }
-        .page.active {
-            display: block;
-        }
-        h2 {
-            color: #1a73e8;
-            font-size: 18px;
-            margin-bottom: 8px;
-        }
-        p.subtitle {
-            font-size: 13px;
-            color: #666;
-            margin-bottom: 15px;
-        }
-        textarea, select.input-select, input[type="text"], input[type="number"] {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-        textarea {
-            height: 100px;
-            resize: vertical;
-        }
-        button.btn {
-            width: 100%;
-            padding: 12px;
-            background-color: #1a73e8;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 14px;
-            cursor: pointer;
-            margin-top: 5px;
-            transition: 0.2s;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f0f4f8; color: #333; display: flex; flex-direction: column; min-height: 100vh; }
+        header { background-color: #1a73e8; color: white; padding: 15px; text-align: center; }
+        header h1 { font-size: 18px; margin-bottom: 5px; }
+        .level-selector { display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 5px; }
+        .level-selector select { padding: 4px 8px; border-radius: 6px; border: none; font-weight: bold; color: #1a73e8; outline: none; }
+        
+        .nav-tabs { display: flex; background-color: #ffffff; box-shadow: 0 2px 5px rgba(0,0,0,0.08); overflow-x: auto; }
+        .tab-btn { flex: 1; padding: 10px 4px; background: none; border: none; border-bottom: 3px solid transparent; font-size: 11px; font-weight: bold; color: #555; cursor: pointer; white-space: nowrap; }
+        .tab-btn.active { color: #1a73e8; border-bottom: 3px solid #1a73e8; background-color: #f8f9fa; }
+
+        .container { flex: 1; padding: 15px; max-width: 600px; width: 100%; margin: 0 auto; }
+        .page { display: none; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+        .page.active { display: block; }
+        h2 { color: #1a73e8; font-size: 16px; margin-bottom: 5px; }
+        p.subtitle { font-size: 12px; color: #666; margin-bottom: 10px; }
+        textarea, select.input-select, input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; margin-bottom: 10px; }
+        textarea { height: 90px; resize: vertical; }
+        button.btn { width: 100%; padding: 10px; background-color: #1a73e8; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; margin-top: 5px; }
         button.btn:hover { background-color: #1557b0; }
         button.btn-green { background-color: #34a853; }
-        button.btn-green:hover { background-color: #2d8e47; }
         button.btn-red { background-color: #ea4335; }
-        button.btn-red:hover { background-color: #d93025; }
 
-        .output-box {
-            background: #f8f9fa;
-            border: 1px solid #e0e0e0;
-            padding: 12px;
-            border-radius: 8px;
-            margin-top: 12px;
-            min-height: 50px;
-            font-size: 14px;
-            white-space: pre-wrap;
-        }
-        
-        /* GPA Calculator Table Styles */
-        .course-row {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 8px;
-        }
-        .course-row input, .course-row select {
-            margin-bottom: 0;
-        }
-
-        /* Camera Elements */
-        video, canvas {
-            width: 100%;
-            height: 200px;
-            background-color: #000;
-            border-radius: 8px;
-            object-fit: cover;
-            margin-bottom: 10px;
-        }
+        .output-box { background: #f8f9fa; border: 1px solid #e0e0e0; padding: 10px; border-radius: 8px; margin-top: 10px; min-height: 60px; font-size: 13px; white-space: pre-wrap; }
+        .course-row { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 6px; margin-bottom: 6px; }
+        .course-row input, .course-row select { margin-bottom: 0; }
+        video, canvas { width: 100%; height: 180px; background-color: #000; border-radius: 8px; object-fit: cover; margin-bottom: 8px; }
         canvas { display: none; }
-        .photo-preview {
-            max-width: 100%;
-            border-radius: 8px;
-            margin-top: 10px;
-            display: none;
-        }
+        .photo-preview { max-width: 100%; border-radius: 8px; margin-top: 8px; display: none; }
     </style>
 </head>
 <body>
 
-    <!-- Header with Student Level -->
     <header>
-        <h1>Student AI & Academic Hub</h1>
+        <h1>Student Cloud AI Hub</h1>
         <div class="level-selector">
-            <label for="studentLevel" style="font-size: 13px;">Grade Level:</label>
+            <label style="font-size: 12px;">Level:</label>
             <select id="studentLevel">
-                <option value="KG / Kindergarten">KG / Kindergarten</option>
-                <option value="Elementary (1-8)">Elementary (1-8)</option>
-                <option value="High School (9-12)">High School (9-12)</option>
-                <option value="University / College" selected>University / College</option>
+                <option value="KG">KG</option>
+                <option value="Elementary">Elementary (1-8)</option>
+                <option value="High School">High School (9-12)</option>
+                <option value="University" selected>University</option>
             </select>
         </div>
     </header>
 
-    <!-- Navigation Tabs -->
     <div class="nav-tabs">
-        <button class="tab-btn active" onclick="switchTab('gpa', this)">📊 GPA</button>
+        <button class="tab-btn active" onclick="switchTab('aiQ', this)">🤖 AI Tutor</button>
         <button class="tab-btn" onclick="switchTab('grammar', this)">📝 Grammar</button>
-        <button class="tab-btn" onclick="switchTab('voice', this)">🎙️ Voice</button>
-        <button class="tab-btn" onclick="switchTab('camera', this)">📷 Camera</button>
         <button class="tab-btn" onclick="switchTab('translator', this)">🌐 Translate</button>
+        <button class="tab-btn" onclick="switchTab('gpa', this)">📊 GPA</button>
+        <button class="tab-btn" onclick="switchTab('camera', this)">📷 Camera</button>
     </div>
 
     <div class="container">
 
-        <!-- 1. Ethiopian University GPA Calculator Page -->
-        <div id="gpa" class="page active">
+        <!-- 1. AI Question & Answer (Cloud Connected) -->
+        <div id="aiQ" class="page active">
+            <h2>AI Student Tutor (Cloud)</h2>
+            <p class="subtitle">Ask any academic question, math, or homework help.</p>
+            <textarea id="aiPrompt" placeholder="Ask your question here..."></textarea>
+            <button class="btn btn-green" onclick="askCloudAI()">Ask AI Cloud 🚀</button>
+            <div id="aiResult" class="output-box">AI answers will appear here from the cloud...</div>
+        </div>
+
+        <!-- 2. Grammar Checker (Cloud Connected) -->
+        <div id="grammar" class="page">
+            <h2>Cloud Grammar & Spell Checker</h2>
+            <p class="subtitle">Fix essay errors using Google Cloud AI.</p>
+            <textarea id="grammarText" placeholder="Type text to check grammar..."></textarea>
+            <button class="btn" onclick="checkCloudGrammar()">Fix with AI</button>
+            <div id="grammarResult" class="output-box">Corrected text will appear here...</div>
+        </div>
+
+        <!-- 3. Translator (Cloud Connected) -->
+        <div id="translator" class="page">
+            <h2>Cloud Translator</h2>
+            <p class="subtitle">Translate study text accurately.</p>
+            <select id="targetLang" class="input-select">
+                <option value="Amharic">Amharic</option>
+                <option value="English">English</option>
+                <option value="Arabic">Arabic</option>
+                <option value="French">French</option>
+            </select>
+            <textarea id="transInput" placeholder="Enter text to translate..."></textarea>
+            <button class="btn" onclick="translateCloudText()">Translate Now</button>
+            <div id="transResult" class="output-box">Translation result...</div>
+        </div>
+
+        <!-- 4. GPA Calculator -->
+        <div id="gpa" class="page">
             <h2>Ethiopian University GPA Calculator</h2>
-            <p class="subtitle">Enter course Credit Hours (Cr.Hr) and Grade (A+, A, B, etc.):</p>
-            
+            <p class="subtitle">Calculate your semester GPA:</p>
             <div id="courseContainer">
                 <div class="course-row">
-                    <input type="text" placeholder="Course Name (e.g., Math)" class="c-name">
-                    <input type="number" placeholder="Cr.Hr" class="c-credit" min="1" max="6" value="3">
+                    <input type="text" placeholder="Course" class="c-name">
+                    <input type="number" placeholder="Cr.Hr" class="c-credit" value="3" min="1" max="6">
                     <select class="c-grade">
                         <option value="4.0">A+ / A</option>
                         <option value="3.75">A-</option>
                         <option value="3.5">B+</option>
                         <option value="3.0">B</option>
-                        <option value="2.75">B-</option>
                         <option value="2.5">C+</option>
                         <option value="2.0">C</option>
-                        <option value="1.75">C-</option>
                         <option value="1.0">D</option>
                         <option value="0.0">F</option>
                     </select>
                 </div>
             </div>
-
-            <button class="btn btn-green" style="margin-top: 5px;" onclick="addCourseRow()">+ Add Another Course</button>
-            <button class="btn" style="margin-top: 10px;" onclick="calculateGPA()">Calculate My GPA</button>
-
-            <div id="gpaResult" class="output-box" style="text-align: center; font-weight: bold; font-size: 16px;">
-                Your GPA result will appear here...
-            </div>
+            <button class="btn btn-green" onclick="addCourseRow()" style="margin-top:5px;">+ Add Course</button>
+            <button class="btn" onclick="calculateGPA()" style="margin-top:8px;">Calculate GPA</button>
+            <div id="gpaResult" class="output-box" style="text-align:center; font-weight:bold;">GPA result...</div>
         </div>
 
-        <!-- 2. Grammar & Spell Checker Page -->
-        <div id="grammar" class="page">
-            <h2>Grammar & Spell Checker</h2>
-            <p class="subtitle">Enter your essay or assignment to check errors.</p>
-            <textarea id="grammarText" placeholder="Type or paste text here..."></textarea>
-            <button class="btn" onclick="checkGrammar()">Fix Grammar & Spelling</button>
-            <div id="grammarResult" class="output-box">Your corrected text will appear here...</div>
-        </div>
-
-        <!-- 3. Voice Assistant Page -->
-        <div id="voice" class="page">
-            <h2>Voice Assistant</h2>
-            <p class="subtitle">Speak to input text or listen to AI readings.</p>
-            <button class="btn btn-green" onclick="startVoiceInput()">Start Voice Input 🎙️</button>
-            <div id="voiceResult" class="output-box">Spoken text will show here...</div>
-            <button class="btn" style="margin-top: 15px;" onclick="readAloud()">Read Text Aloud 🔊</button>
-        </div>
-
-        <!-- 4. Camera & Homework Scanner Page -->
+        <!-- 5. Camera -->
         <div id="camera" class="page">
-            <h2>Camera & Homework Scanner</h2>
-            <p class="subtitle">Take photos of books, notes, or math problems.</p>
+            <h2>Camera & Notes Scanner</h2>
             <video id="webcam" autoplay playsinline muted></video>
             <canvas id="photoCanvas"></canvas>
-            
-            <div style="display: flex; gap: 10px;">
-                <button class="btn" onclick="openCamera()">Turn On Camera</button>
-                <button class="btn btn-red" onclick="capturePhoto()">Take Photo 📸</button>
+            <div style="display: flex; gap: 8px;">
+                <button class="btn" onclick="openCamera()">Open Camera</button>
+                <button class="btn btn-red" onclick="capturePhoto()">Snap Photo 📸</button>
             </div>
-            <img id="savedPhoto" class="photo-preview" alt="Captured Homework">
-        </div>
-
-        <!-- 5. Translator Page -->
-        <div id="translator" class="page">
-            <h2>Language Translator</h2>
-            <p class="subtitle">Translate study materials into different languages.</p>
-            <select id="targetLang" class="input-select">
-                <option value="Amharic">Translate to Amharic</option>
-                <option value="Spanish">Translate to Spanish</option>
-                <option value="French">Translate to French</option>
-                <option value="Arabic">Translate to Arabic</option>
-            </select>
-            <textarea id="transInput" placeholder="Enter text to translate..."></textarea>
-            <button class="btn" onclick="translateText()">Translate Now</button>
-            <div id="transResult" class="output-box">Translation result will appear here...</div>
+            <img id="savedPhoto" class="photo-preview" alt="Captured">
         </div>
 
     </div>
 
     <script>
-        // Tab Switcher
+        // እዚህ የራስህን የ Google Gemini API Key አስገባ (ማስታወሻ፦ ነጻ ቁልፍ ከ Google AI Studio ማግኘት ይቻላል)
+        const GEMINI_API_KEY = "YOUR_API_KEY_HERE";
+
         function switchTab(pageId, btn) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            
             document.getElementById(pageId).classList.add('active');
             btn.classList.add('active');
+            if (pageId !== 'camera' && cameraStream) stopCamera();
+        }
 
-            if (pageId !== 'camera' && cameraStream) {
-                stopCamera();
+        // --- Cloud AI Function (Gemini API) ---
+        async function callGeminiAPI(promptText, outputDivId) {
+            const outputDiv = document.getElementById(outputDivId);
+            const level = document.getElementById('studentLevel').value;
+
+            if (!GEMINI_API_KEY || GEMINI_API_KEY === "YOUR_API_KEY_HERE") {
+                outputDiv.innerText = "Error: Please set your Gemini API Key in the script code.";
+                return;
+            }
+
+            outputDiv.innerText = "Connecting to Cloud AI...";
+
+            try {
+                const response = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+                const res = await fetch(response, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: `Act as an expert AI tutor for a ${level} student. ${promptText}` }] }]
+                    })
+                });
+
+                const data = await res.json();
+                if (data.candidates && data.candidates[0].content.parts[0].text) {
+                    outputDiv.innerText = data.candidates[0].content.parts[0].text;
+                } else {
+                    outputDiv.innerText = "No response from Cloud AI. Check your API key.";
+                }
+            } catch (err) {
+                outputDiv.innerText = "Connection error: " + err.message;
             }
         }
 
-        // --- GPA Calculator Logic ---
+        function askCloudAI() {
+            let q = document.getElementById('aiPrompt').value.trim();
+            if (!q) return alert("Please enter a question!");
+            callGeminiAPI(q, 'aiResult');
+        }
+
+        function checkCloudGrammar() {
+            let t = document.getElementById('grammarText').value.trim();
+            if (!t) return alert("Please enter text to check!");
+            callGeminiAPI(`Fix the grammar and spelling of this text professionally: "${t}"`, 'grammarResult');
+        }
+
+        function translateCloudText() {
+            let t = document.getElementById('transInput').value.trim();
+            let lang = document.getElementById('targetLang').value;
+            if (!t) return alert("Please enter text to translate!");
+            callGeminiAPI(`Translate the following text accurately into ${lang}: "${t}"`, 'transResult');
+        }
+
+        // --- GPA Logic ---
         function addCourseRow() {
             const container = document.getElementById('courseContainer');
-            const newRow = document.createElement('div');
-            newRow.className = 'course-row';
-            newRow.innerHTML = `
-                <input type="text" placeholder="Course Name" class="c-name">
-                <input type="number" placeholder="Cr.Hr" class="c-credit" min="1" max="6" value="3">
+            const row = document.createElement('div');
+            row.className = 'course-row';
+            row.innerHTML = `
+                <input type="text" placeholder="Course" class="c-name">
+                <input type="number" placeholder="Cr.Hr" class="c-credit" value="3" min="1" max="6">
                 <select class="c-grade">
                     <option value="4.0">A+ / A</option>
                     <option value="3.75">A-</option>
                     <option value="3.5">B+</option>
                     <option value="3.0">B</option>
-                    <option value="2.75">B-</option>
                     <option value="2.5">C+</option>
                     <option value="2.0">C</option>
-                    <option value="1.75">C-</option>
                     <option value="1.0">D</option>
                     <option value="0.0">F</option>
                 </select>
             `;
-            container.appendChild(newRow);
+            container.appendChild(row);
         }
 
         function calculateGPA() {
             const credits = document.querySelectorAll('.c-credit');
             const grades = document.querySelectorAll('.c-grade');
-            
-            let totalCredits = 0;
-            let totalGradePoints = 0;
-
+            let totalCredits = 0, totalPoints = 0;
             for (let i = 0; i < credits.length; i++) {
-                let creditVal = parseFloat(credits[i].value) || 0;
-                let gradeVal = parseFloat(grades[i].value) || 0;
-
-                totalCredits += creditVal;
-                totalGradePoints += (creditVal * gradeVal);
+                let cr = parseFloat(credits[i].value) || 0;
+                let gr = parseFloat(grades[i].value) || 0;
+                totalCredits += cr;
+                totalPoints += (cr * gr);
             }
-
-            const resultDiv = document.getElementById('gpaResult');
-
-            if (totalCredits === 0) {
-                resultDiv.innerText = "Please enter valid credit hours!";
-                resultDiv.style.color = "red";
-                return;
-            }
-
-            let gpa = (totalGradePoints / totalCredits).toFixed(2);
-            resultDiv.style.color = "#1a73e8";
-            resultDiv.innerHTML = `🎓 Total Credits: ${totalCredits}<br>🏆 Cumulative GPA: <span style="font-size: 22px; color:#34a853;">${gpa}</span>`;
-        }
-
-        // --- Grammar Checker ---
-        function checkGrammar() {
-            let text = document.getElementById('grammarText').value.trim();
-            let level = document.getElementById('studentLevel').value;
-            let result = document.getElementById('grammarResult');
-
-            if (!text) {
-                result.innerText = "Please enter some text first!";
-                return;
-            }
-
-            result.innerText = "Analyzing for " + level + " level...";
-            setTimeout(() => {
-                let fixed = text.charAt(0).toUpperCase() + text.slice(1);
-                if (!fixed.endsWith('.')) fixed += '.';
-                result.innerText = "✅ Corrected (" + level + "):\n\n" + fixed;
-            }, 600);
-        }
-
-        // --- Voice Logic ---
-        function startVoiceInput() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            const output = document.getElementById('voiceResult');
-
-            if (!SpeechRecognition) {
-                alert("Speech recognition is not supported on this device/browser.");
-                return;
-            }
-
-            const rec = new SpeechRecognition();
-            rec.lang = 'en-US';
-            output.innerText = "Listening... Speak now...";
-            rec.start();
-
-            rec.onresult = function(e) {
-                output.innerText = e.results[0][0].transcript;
-            };
-
-            rec.onerror = function() {
-                output.innerText = "Could not record audio. Please try again.";
-            };
-        }
-
-        function readAloud() {
-            let text = document.getElementById('voiceResult').innerText;
-            if (!text || text === "Spoken text will show here...") return;
-            let speech = new SpeechSynthesisUtterance(text);
-            speech.lang = 'en-US';
-            window.speechSynthesis.speak(speech);
+            const res = document.getElementById('gpaResult');
+            if (totalCredits === 0) { res.innerText = "Invalid credits!"; return; }
+            let gpa = (totalPoints / totalCredits).toFixed(2);
+            res.innerHTML = `Total Credits: ${totalCredits} | Cumulative GPA: <span style="color:#34a853; font-size:18px;">${gpa}</span>`;
         }
 
         // --- Camera Logic ---
         let cameraStream = null;
-
         async function openCamera() {
-            const video = document.getElementById('webcam');
             try {
-                cameraStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-                video.srcObject = cameraStream;
-            } catch (err) {
-                alert("Camera access denied or unavailable.");
-            }
+                cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                document.getElementById('webcam').srcObject = cameraStream;
+            } catch (e) { alert("Camera error."); }
         }
-
         function capturePhoto() {
-            const video = document.getElementById('webcam');
-            const canvas = document.getElementById('photoCanvas');
-            const photo = document.getElementById('savedPhoto');
-
-            if (!cameraStream) {
-                alert("Please turn on the camera first!");
-                return;
-            }
-
-            canvas.width = video.videoWidth || 320;
-            canvas.height = video.videoHeight || 240;
-            let ctx = canvas.getContext('2d');
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-            photo.src = canvas.toDataURL('image/png');
-            photo.style.display = 'block';
+            const v = document.getElementById('webcam'), c = document.getElementById('photoCanvas'), p = document.getElementById('savedPhoto');
+            if (!cameraStream) return alert("Open camera first!");
+            c.width = v.videoWidth || 320; c.height = v.videoHeight || 240;
+            c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
+            p.src = c.toDataURL('image/png'); p.style.display = 'block';
         }
-
         function stopCamera() {
-            if (cameraStream) {
-                cameraStream.getTracks().forEach(t => t.stop());
-                cameraStream = null;
-            }
-        }
-
-        // --- Translator Logic ---
-        function translateText() {
-            let text = document.getElementById('transInput').value.trim();
-            let lang = document.getElementById('targetLang').value;
-            let result = document.getElementById('transResult');
-
-            if (!text) {
-                result.innerText = "Please enter text to translate!";
-                return;
-            }
-
-            result.innerText = "Translating to " + lang + "...";
-            setTimeout(() => {
-                result.innerText = "🌐 [" + lang + " Translation]:\n\n" + text + " (Translated)";
-            }, 600);
+            if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
         }
     </script>
 </body>
